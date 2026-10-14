@@ -1,0 +1,28 @@
+# SPDX-FileCopyrightText: Copyright Logically Magic Inc. <hello@logicallymagic.com>
+# SPDX-FileCopyrightText: Copyright Hamid Jahanzad <Hamid@Jahanzad.com>
+# SPDX-FileCopyrightText: Copyright Contributors to the Email8:SDK
+# SPDX-License-Identifier: Apache-2.0
+
+[package]
+name = "email8"
+version = "0.1.0"
+edition = "2021"
+license = "UNLICENSED"
+description = "email8 namespace facade — every email8 crate imports as email8::{leaf} (architecture-principles §2.1)."
+
+[dependencies]
+# Gate-scoped leaf (service nesting per §2.1): I/O + wire parsing that
+# must not live in the shared vocabulary crate (master design §4.2.1).
+email8-gate-contracts.workspace = true
+email8-contracts.workspace = true
+email8-dav-proto.workspace = true
+email8-ical.workspace = true
+email8-imap-proto.workspace = true
+email8-jmap-proto.workspace = true
+email8-mail-auth.workspace = true
+email8-mail-core.workspace = true
+email8-mail-queue.workspace = true
+email8-sieve.workspace = true
+email8-smtp-proto.workspace = true
+email8-spam.workspace = true
+email8-vcard.workspace = true

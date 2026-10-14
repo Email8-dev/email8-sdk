@@ -1,0 +1,108 @@
+# SPDX-FileCopyrightText: Copyright Logically Magic Inc. <hello@logicallymagic.com>
+# SPDX-FileCopyrightText: Copyright Hamid Jahanzad <Hamid@Jahanzad.com>
+# SPDX-FileCopyrightText: Copyright Contributors to the Email8:SDK
+# SPDX-License-Identifier: Apache-2.0
+
+[workspace]
+resolver = "2"
+members = [
+    "facade",
+    "crates/gate/contracts",
+    "crates/contracts",
+    "crates/dav-proto",
+    "crates/ical",
+    "crates/imap-proto",
+    "crates/jmap-proto",
+    "crates/mail-auth",
+    "crates/mail-core",
+    "crates/mail-queue",
+    "crates/sieve",
+    "crates/smtp-proto",
+    "crates/spam",
+    "crates/vcard",
+]
+
+
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/Email8-dev/email8-sdk"
+rust-version = "1.85"
+
+[workspace.dependencies]
+email8-gate-contracts = { path = "crates/gate/contracts" }
+email8-contracts = { path = "crates/contracts" }
+email8-dav-proto = { path = "crates/dav-proto" }
+email8-ical = { path = "crates/ical" }
+email8-imap-proto = { path = "crates/imap-proto" }
+email8-jmap-proto = { path = "crates/jmap-proto" }
+email8-mail-auth = { path = "crates/mail-auth" }
+email8-mail-core = { path = "crates/mail-core" }
+email8-mail-queue = { path = "crates/mail-queue" }
+email8-sieve = { path = "crates/sieve" }
+email8-smtp-proto = { path = "crates/smtp-proto" }
+email8-spam = { path = "crates/spam" }
+email8-vcard = { path = "crates/vcard" }
+
+# full platform dep table (mirrors sentin8-sdk) + intra-vertical
+# contracts path deps. Platform sentin8-* crates arrive via the
+# sentin8 facade git pin — never as local paths (RS §2.3).
+axum = { version = "0.8", features = ["macros"] }
+hyper = { version = "1", features = ["full"] }
+tokio = { version = "1", features = ["full"] }
+tower = { version = "0.5", features = ["util"] }
+tower-http = { version = "0.7", features = ["trace", "cors", "compression-gzip", "limit"] }
+reqwest = { version = "0.12", features = ["json", "rustls-tls-native-roots-no-provider", "stream"], default-features = false }
+tokio-stream = "0.1"
+bytes = "1"
+tokio-tungstenite = { version = "0.30", features = ["connect", "rustls-tls-native-roots"], default-features = false }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror = "1"
+anyhow = "1"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
+tracing-futures = "0.2"
+once_cell = "1"
+sqlx = { version = "0.8", features = ["runtime-tokio", "tls-rustls-ring", "postgres", "uuid", "chrono", "json", "macros"] }
+# Valkey GLIDE — the platform's sole Valkey client engine (platform group
+# DESIGN.md §3.1): glide-core owns TLS, reconnection, and backoff natively.
+valkey-glide = "0.9.0"
+time = "0.3.36"
+jsonwebtoken = "9"
+rand = "0.8"
+sha2 = "0.10"
+hmac = "0.12"
+sha1 = "0.10"
+p256 = { version = "0.13", features = ["ecdsa", "ecdsa-core", "ecdh", "pem", "pkcs8"] }
+ciborium = "0.2"
+aes-gcm = { version = "0.10", features = ["aes"] }
+zeroize = "1"
+ring = "0.17"
+rsa = { version = "0.9", features = ["sha2"] }
+bcrypt = "0.15"
+async-trait = "0.1"
+futures-util = "0.3"
+uuid = { version = "1", features = ["v4", "v5", "serde"] }
+chrono = { version = "0.4", features = ["serde"] }
+ulid = { version = "1", features = ["serde"] }
+base64 = "0.22"
+rust_decimal = { version = "1", features = ["serde-with-str", "db-postgres"] }
+figment = { version = "0.10", features = ["env", "toml"] }
+dotenvy = "0.15"
+prometheus = "0.13"
+opentelemetry = "0.27"
+validator = { version = "0.18", features = ["derive"] }
+sentin8 = { git = "https://github.com/Sentin8/sentin8-sdk", tag = "sdk-v0.6.3" }
+utoipa = { version = "5", features = ["chrono", "uuid"] }
+rustls = { version = "0.23", features = ["std", "tls12", "logging"], default-features = false }
+rustls-graviola = "0.4"
+tokio-rustls = { version = "0.26", features = ["ring"], default-features = false }
+hkdf = "0.12"
+blake3 = "1"
+regex = "1"
+percent-encoding = "2"
+memchr = "2"
+mimalloc = { version = "0.1", default-features = false }

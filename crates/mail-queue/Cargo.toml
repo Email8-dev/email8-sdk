@@ -1,0 +1,18 @@
+# SPDX-FileCopyrightText: Copyright Logically Magic Inc. <hello@logicallymagic.com>
+# SPDX-FileCopyrightText: Copyright Hamid Jahanzad <Hamid@Jahanzad.com>
+# SPDX-FileCopyrightText: Copyright Contributors to the Email8:SDK
+# SPDX-License-Identifier: Apache-2.0
+
+[package]
+name = "email8-mail-queue"
+version = "0.1.0"
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+description = "Email8 queue math — retry/notify/expiry schedules, DSN (RFC 3464) builder, double-bounce policy."
+
+[dependencies]
+chrono.workspace = true
+base64.workspace = true
+memchr.workspace = true

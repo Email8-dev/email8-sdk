@@ -1,0 +1,17 @@
+# SPDX-FileCopyrightText: Copyright Logically Magic Inc. <hello@logicallymagic.com>
+# SPDX-FileCopyrightText: Copyright Hamid Jahanzad <Hamid@Jahanzad.com>
+# SPDX-FileCopyrightText: Copyright Contributors to the Email8:SDK
+# SPDX-License-Identifier: Apache-2.0
+
+[package]
+name = "email8-ical"
+version = "0.1.0"
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+description = "Email8 iCalendar — parse/build (RFC 5545), recurrence expansion (RFC 5545 §3.3.10), synthetic ids, UID uniqueness."
+
+[dependencies]
+serde.workspace = true
+chrono.workspace = true
