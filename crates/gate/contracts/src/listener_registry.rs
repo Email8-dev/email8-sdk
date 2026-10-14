@@ -56,7 +56,10 @@ pub async fn publish(
 ) {
     use glide::AsyncCommands as _;
     let Ok(client) = sentin8::middleware::valkey_client(valkey_url, workload).await else {
-        tracing::warn!(service = service_type, "email8:listeners: valkey connect failed — gate discovery unavailable");
+        tracing::warn!(
+            service = service_type,
+            "email8:listeners: valkey connect failed — gate discovery unavailable"
+        );
         return;
     };
     let key = format!("captain:listeners:{service_type}");
@@ -90,7 +93,11 @@ pub async fn unpublish(valkey_url: &str, workload: &str, service_type: &str, ins
     };
     let map_key = format!("captain:listeners:{service_type}:{instance_key}");
     let _: usize = client.del(&map_key).await.unwrap_or(0);
-    tracing::info!(service = service_type, instance = instance_key, "email8:listeners: unpublished");
+    tracing::info!(
+        service = service_type,
+        instance = instance_key,
+        "email8:listeners: unpublished"
+    );
 }
 
 /// Spawn a SIGTERM/Ctrl-C watcher that un-publishes this instance's
@@ -115,7 +122,11 @@ mod tests {
 
     #[test]
     fn bound_listener_shape() {
-        let l = BoundListener { proto: "smtp", port: 43111, implicit_tls: false };
+        let l = BoundListener {
+            proto: "smtp",
+            port: 43111,
+            implicit_tls: false,
+        };
         assert_eq!(l.proto, "smtp");
         assert_eq!(l.port, 43111);
     }
@@ -126,7 +137,9 @@ mod tests {
         // callers build them per-boot (no hot-path allocation concerns).
         let svc = "email8-mta".to_string();
         let key = "172.0.0.1:8052".to_string();
-        assert_eq!(format!("captain:listeners:{svc}:{key}"),
-                   "captain:listeners:email8-mta:172.0.0.1:8052");
+        assert_eq!(
+            format!("captain:listeners:{svc}:{key}"),
+            "captain:listeners:email8-mta:172.0.0.1:8052"
+        );
     }
 }

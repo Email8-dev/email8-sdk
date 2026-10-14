@@ -36,9 +36,18 @@ pub enum Element {
     Literal { data: Vec<u8> },
 }
 
+impl Default for Receiver {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Receiver {
     pub fn new() -> Self {
-        Self { buffer: Vec::with_capacity(1024), pending_literal: None }
+        Self {
+            buffer: Vec::with_capacity(1024),
+            pending_literal: None,
+        }
     }
 
     /// Feed socket bytes; returns completed elements (may be empty).
@@ -123,9 +132,6 @@ mod tests {
         // surfaces them as a Literal element; the trailing CRLF is then
         // parsed as an empty (invalid) command line.
         assert!(matches!(els[0], Element::Literal { ref data } if data == b"hello  world"));
-        assert!(
-            els.len() == 1
-                || matches!(els[1], Element::Invalid(_))
-        );
+        assert!(els.len() == 1 || matches!(els[1], Element::Invalid(_)));
     }
 }

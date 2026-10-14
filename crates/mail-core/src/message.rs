@@ -39,11 +39,17 @@ impl ParsedMessage {
         for (k, v) in &headers {
             header_map.insert(k.clone(), v.clone());
         }
-        Ok(Self { body_offset: sep + if sep < raw.len() { 0 } else { 0 }, headers, header_map })
+        Ok(Self {
+            body_offset: sep + if sep < raw.len() { 0 } else { 0 },
+            headers,
+            header_map,
+        })
     }
 
     pub fn header(&self, name: &str) -> Option<&str> {
-        self.header_map.get(&name.to_ascii_lowercase()).map(|s| s.as_str())
+        self.header_map
+            .get(&name.to_ascii_lowercase())
+            .map(|s| s.as_str())
     }
 
     /// Message-ID angle-bracket contents.
@@ -73,7 +79,9 @@ impl ParsedMessage {
     }
 
     pub fn to_addresses(&self) -> Vec<String> {
-        self.header("to").map(|v| extract_addresses(v)).unwrap_or_default()
+        self.header("to")
+            .map(extract_addresses)
+            .unwrap_or_default()
     }
 
     pub fn subject(&self) -> Option<&str> {
@@ -104,7 +112,10 @@ impl ParsedMessage {
         // The part's content type lives in the headers (this parser treats
         // single-part messages); a body that opens with an HTML tag is
         // handled as HTML regardless.
-        let content_type = self.header("content-type").unwrap_or("").to_ascii_lowercase();
+        let content_type = self
+            .header("content-type")
+            .unwrap_or("")
+            .to_ascii_lowercase();
         let is_html = content_type.contains("text/html")
             || body.starts_with(b"<")
             || body.windows(6).take(64).any(|w| w.starts_with(b"<html>"));
@@ -131,7 +142,7 @@ fn find_header_end(raw: &[u8]) -> Option<usize> {
 fn parse_headers(head: &[u8]) -> Vec<(String, String)> {
     let text = String::from_utf8_lossy(head);
     let mut headers: Vec<(String, String)> = Vec::new();
-    for line in text.split_inclusive(|c| c == '\n') {
+    for line in text.split_inclusive('\n') {
         let line = line.trim_end_matches('\r').trim_end_matches('\n');
         if line.is_empty() {
             continue;
@@ -196,7 +207,8 @@ fn extract_addresses(value: &str) -> Vec<String> {
             if let Some(ab) = angle_bracket(part) {
                 return Some(ab.to_string());
             }
-            part.contains('@').then(|| part.trim_end_matches('.').to_string())
+            part.contains('@')
+                .then(|| part.trim_end_matches('.').to_string())
         })
         .collect()
 }
@@ -236,8 +248,8 @@ fn strip_html(html: &str) -> String {
     let mut out = String::with_capacity(html.len() / 2);
     let mut in_tag = false;
     let mut skip_depth = 0usize;
-    let mut upper_iter = html.char_indices().peekable();
-    while let Some((idx, ch)) = upper_iter.next() {
+    let upper_iter = html.char_indices().peekable();
+    for (idx, ch) in upper_iter {
         match ch {
             '<' => {
                 in_tag = true;
@@ -248,11 +260,10 @@ fn strip_html(html: &str) -> String {
                 }
             }
             '>' => in_tag = false,
-            _ if !in_tag && skip_depth == 0 => {
-                if skip_depth == 0 {
+            _ if !in_tag && skip_depth == 0
+                && skip_depth == 0 => {
                     out.push(ch);
                 }
-            }
             _ => {}
         }
     }
@@ -286,7 +297,10 @@ mod tests {
         assert_eq!(m.to_addresses(), vec!["bob@example.com".to_string()]);
         assert_eq!(
             m.reference_ids(),
-            vec!["root-0@example.com".to_string(), "def-2@example.com".to_string()]
+            vec![
+                "root-0@example.com".to_string(),
+                "def-2@example.com".to_string()
+            ]
         );
         assert!(m.sent_at().is_some());
     }
@@ -307,7 +321,8 @@ mod tests {
 
     #[test]
     fn html_preview_strips_tags() {
-        let raw = b"Content-Type: text/html\r\n\r\n<html><body><p>Hello &amp; welcome</p></body></html>";
+        let raw =
+            b"Content-Type: text/html\r\n\r\n<html><body><p>Hello &amp; welcome</p></body></html>";
         let m = ParsedMessage::parse(raw).unwrap();
         let p = m.preview(raw, 80);
         assert!(p.contains("Hello & welcome"), "got: {p}");

@@ -13,14 +13,50 @@
 
 /// Languages with Postgres tsvector configurations we support.
 pub const LANGS: &[(&str, &[&str])] = &[
-    ("english", &["the", "and", "is", "of", "to", "in", "that", "it", "for", "with"]),
-    ("german", &["der", "die", "das", "und", "ist", "nicht", "mit", "ein", "eine", "auf"]),
-    ("french", &["le", "la", "les", "et", "est", "un", "une", "pour", "avec", "que"]),
-    ("spanish", &["el", "la", "los", "las", "es", "un", "una", "para", "con", "que"]),
-    ("italian", &["il", "la", "gli", "e", "è", "un", "una", "per", "con", "che"]),
-    ("dutch", &["de", "het", "een", "en", "is", "van", "niet", "met", "voor", "dat"]),
-    ("portuguese", &["o", "a", "os", "as", "é", "um", "uma", "para", "com", "que"]),
-    ("russian", &["и", "в", "не", "на", "что", "это", "как", "по", "из", "за"]),
+    (
+        "english",
+        &[
+            "the", "and", "is", "of", "to", "in", "that", "it", "for", "with",
+        ],
+    ),
+    (
+        "german",
+        &[
+            "der", "die", "das", "und", "ist", "nicht", "mit", "ein", "eine", "auf",
+        ],
+    ),
+    (
+        "french",
+        &[
+            "le", "la", "les", "et", "est", "un", "une", "pour", "avec", "que",
+        ],
+    ),
+    (
+        "spanish",
+        &[
+            "el", "la", "los", "las", "es", "un", "una", "para", "con", "que",
+        ],
+    ),
+    (
+        "italian",
+        &[
+            "il", "la", "gli", "e", "è", "un", "una", "per", "con", "che",
+        ],
+    ),
+    (
+        "dutch",
+        &[
+            "de", "het", "een", "en", "is", "van", "niet", "met", "voor", "dat",
+        ],
+    ),
+    (
+        "portuguese",
+        &["o", "a", "os", "as", "é", "um", "uma", "para", "com", "que"],
+    ),
+    (
+        "russian",
+        &["и", "в", "не", "на", "что", "это", "как", "по", "из", "за"],
+    ),
 ];
 
 /// Detect the Postgres tsvector config for a text corpus. Falls back to
@@ -79,7 +115,9 @@ pub fn snippet(body: &str, query: &str, max_chars: usize) -> Snippet {
     }
     let Some(pos) = hit else {
         // No match — head of the text.
-        return Snippet { preview: truncate_chars(&flat, max_chars) };
+        return Snippet {
+            preview: truncate_chars(&flat, max_chars),
+        };
     };
     // Center the window on the match while keeping the full matched term
     // inside the window.
@@ -138,7 +176,10 @@ mod tests {
 
     #[test]
     fn cjk_defaults_to_simple() {
-        assert_eq!(detect_tsvector_lang("これは日本語のテキストです。テストです。"), "simple");
+        assert_eq!(
+            detect_tsvector_lang("これは日本語のテキストです。テストです。"),
+            "simple"
+        );
     }
 
     #[test]

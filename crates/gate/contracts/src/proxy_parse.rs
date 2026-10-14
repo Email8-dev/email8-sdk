@@ -52,7 +52,10 @@ pub enum ProxyV2Error {
 /// Returns the parsed addresses and the total header length to consume.
 pub fn parse_v2_header(buf: &[u8]) -> Result<(V2Addresses, usize), ProxyV2Error> {
     if buf.len() < FIXED_LEN {
-        return Err(ProxyV2Error::Truncated { needed: FIXED_LEN, got: buf.len() });
+        return Err(ProxyV2Error::Truncated {
+            needed: FIXED_LEN,
+            got: buf.len(),
+        });
     }
     if buf[..12] != SIG {
         return Err(ProxyV2Error::BadSignature);
@@ -66,7 +69,10 @@ pub fn parse_v2_header(buf: &[u8]) -> Result<(V2Addresses, usize), ProxyV2Error>
     let addr_len = u16::from_be_bytes([buf[14], buf[15]]) as usize;
     let total = FIXED_LEN + addr_len;
     if buf.len() < total {
-        return Err(ProxyV2Error::Truncated { needed: total, got: buf.len() });
+        return Err(ProxyV2Error::Truncated {
+            needed: total,
+            got: buf.len(),
+        });
     }
     let addr = &buf[FIXED_LEN..total];
     match family {
@@ -76,16 +82,20 @@ pub fn parse_v2_header(buf: &[u8]) -> Result<(V2Addresses, usize), ProxyV2Error>
                 return Err(ProxyV2Error::BadLength(addr_len));
             }
             let src = std::net::SocketAddr::new(
-                std::net::IpAddr::V4(std::net::Ipv4Addr::new(
-                    addr[0], addr[1], addr[2], addr[3],
-                )),
+                std::net::IpAddr::V4(std::net::Ipv4Addr::new(addr[0], addr[1], addr[2], addr[3])),
                 u16::from_be_bytes([addr[8], addr[9]]),
             );
             let dst = std::net::SocketAddr::new(
                 std::net::Ipv4Addr::new(addr[4], addr[5], addr[6], addr[7]).into(),
                 u16::from_be_bytes([addr[10], addr[11]]),
             );
-            Ok((V2Addresses { source: src, destination: dst }, total))
+            Ok((
+                V2Addresses {
+                    source: src,
+                    destination: dst,
+                },
+                total,
+            ))
         }
         // INET6, STREAM
         0x22 => {
@@ -157,10 +167,7 @@ mod tests {
     #[test]
     fn parses_tcp4_header() {
         // Build with the gate's constructor for symmetry.
-        let header = super::gate_v2::v2_tcp4(
-            [192, 0, 2, 1], 45678,
-            [203, 0, 113, 9], 25,
-        );
+        let header = super::gate_v2::v2_tcp4([192, 0, 2, 1], 45678, [203, 0, 113, 9], 25);
         let (addrs, len) = parse_v2_header(&header).unwrap();
         assert_eq!(len, 28);
         assert_eq!(addrs.source.to_string(), "192.0.2.1:45678");

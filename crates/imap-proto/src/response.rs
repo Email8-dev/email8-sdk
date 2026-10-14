@@ -102,12 +102,25 @@ pub fn capability_line(caps: &[&str]) -> String {
 
 /// `* LIST` / `* LSUB` line with attributes and delimiter.
 pub fn list_line(attrs: &[&str], delimiter: &str, mailbox: &str) -> String {
-    let attr_str = if attrs.is_empty() { "()".to_string() } else { format!("({})", attrs.join(" ")) };
-    untagged(format!("LIST {} {} {}", attr_str, quote(delimiter), quote(mailbox)))
+    let attr_str = if attrs.is_empty() {
+        "()".to_string()
+    } else {
+        format!("({})", attrs.join(" "))
+    };
+    untagged(format!(
+        "LIST {} {} {}",
+        attr_str,
+        quote(delimiter),
+        quote(mailbox)
+    ))
 }
 
 pub fn status_line(mailbox_id: uuid::Uuid, items: &[(&str, i64)]) -> String {
-    let body = items.iter().map(|(k, v)| format!("{k} {v}")).collect::<Vec<_>>().join(" ");
+    let body = items
+        .iter()
+        .map(|(k, v)| format!("{k} {v}"))
+        .collect::<Vec<_>>()
+        .join(" ");
     untagged(format!("STATUS [EMAIL8-ID {mailbox_id}] ({body})"))
 }
 
@@ -115,8 +128,12 @@ pub fn status_line(mailbox_id: uuid::Uuid, items: &[(&str, i64)]) -> String {
 pub fn select_ok(uidvalidity: i64, uid_next: i64, exists: i64) -> String {
     let mut s = String::new();
     s.push_str(&untagged(format!("{exists} EXISTS")));
-    s.push_str(&untagged(format!("OK [UIDVALIDITY {uidvalidity}] UIDs valid")));
-    s.push_str(&untagged(format!("OK [UIDNEXT {uid_next}] Predicted next UID")));
+    s.push_str(&untagged(format!(
+        "OK [UIDVALIDITY {uidvalidity}] UIDs valid"
+    )));
+    s.push_str(&untagged(format!(
+        "OK [UIDNEXT {uid_next}] Predicted next UID"
+    )));
     s
 }
 
@@ -125,7 +142,11 @@ pub fn search_line(ids: &[i64]) -> String {
     if ids.is_empty() {
         untagged("SEARCH")
     } else {
-        let joined = ids.iter().map(|i| i.to_string()).collect::<Vec<_>>().join(" ");
+        let joined = ids
+            .iter()
+            .map(|i| i.to_string())
+            .collect::<Vec<_>>()
+            .join(" ");
         untagged(format!("SEARCH {joined}"))
     }
 }
@@ -142,7 +163,11 @@ fn format_item_pair(item: impl AsRef<str>, value: impl AsRef<str>) -> String {
 /// FETCH response with a literal body (RFC 9051 §4.1.2).
 pub fn fetch_literal(seq: i64, item: impl AsRef<str>, data: &[u8]) -> String {
     let mut s = String::new();
-    s.push_str(&format!("* {seq} FETCH ({} {{{}}}\r\n", item.as_ref(), data.len()));
+    s.push_str(&format!(
+        "* {seq} FETCH ({} {{{}}}\r\n",
+        item.as_ref(),
+        data.len()
+    ));
     s.push_str(&String::from_utf8_lossy(data));
     s.push_str(")\r\n");
     s

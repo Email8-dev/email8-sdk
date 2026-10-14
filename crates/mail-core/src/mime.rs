@@ -209,9 +209,11 @@ fn parse_part(headers: &[(String, String)], body: &[u8], base: usize) -> MimePar
             };
             let (seg_head, seg_body) = seg.split_at(part_sep);
             let child_headers = parse_part_headers(seg_head);
-            part
-                .children
-                .push(parse_part(&child_headers, seg_body, base + seg_start + part_sep));
+            part.children.push(parse_part(
+                &child_headers,
+                seg_body,
+                base + seg_start + part_sep,
+            ));
         }
         // Container body itself is not payload — mark empty.
         part.body_len = 0;
@@ -344,7 +346,10 @@ mod tests {
         let raw = multipart_raw();
         let parts = walk_parts(&raw);
         // aGVsbG8= → "hello"
-        let pdf = parts.iter().find(|p| p.content_type == "application/pdf").unwrap();
+        let pdf = parts
+            .iter()
+            .find(|p| p.content_type == "application/pdf")
+            .unwrap();
         assert_eq!(decode_part(&raw, pdf), b"hello");
     }
 
@@ -352,10 +357,16 @@ mod tests {
     fn attachment_detection_via_disposition_and_type() {
         let raw = multipart_raw();
         let parts = walk_parts(&raw);
-        let pdf = parts.iter().find(|p| p.content_type == "application/pdf").unwrap();
+        let pdf = parts
+            .iter()
+            .find(|p| p.content_type == "application/pdf")
+            .unwrap();
         assert!(pdf.is_attachment());
         assert_eq!(pdf.filename.as_deref(), Some("report.pdf"));
-        let txt = parts.iter().find(|p| p.content_type == "text/plain").unwrap();
+        let txt = parts
+            .iter()
+            .find(|p| p.content_type == "text/plain")
+            .unwrap();
         assert!(!txt.is_attachment());
     }
 
@@ -406,7 +417,12 @@ mod tests {
         let types: Vec<&str> = parts.iter().map(|p| p.content_type.as_str()).collect();
         assert_eq!(
             types,
-            vec!["multipart/mixed", "multipart/alternative", "text/plain", "text/html"]
+            vec![
+                "multipart/mixed",
+                "multipart/alternative",
+                "text/plain",
+                "text/html"
+            ]
         );
     }
 
@@ -453,7 +469,10 @@ mod tests {
             // Every body window must be in-bounds (offset math sanity).
             assert!(p.body_offset + p.body_len <= raw.len());
         }
-        let txt = parts.iter().find(|p| p.content_type == "text/plain").unwrap();
+        let txt = parts
+            .iter()
+            .find(|p| p.content_type == "text/plain")
+            .unwrap();
         assert_eq!(
             &raw[txt.body_offset..txt.body_offset + txt.body_len],
             b"hello body\r\n"

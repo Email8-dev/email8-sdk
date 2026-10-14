@@ -5,7 +5,9 @@
 
 //! MIME tree + FTS tests (stories 2.1/2.6).
 
-use email8_mail_core::{calendar_bodies, detect_tsvector_lang, first_text_body, snippet, walk_parts};
+use email8_mail_core::{
+    calendar_bodies, detect_tsvector_lang, first_text_body, snippet, walk_parts,
+};
 
 const MULTIPART: &[u8] = b"From: alice@example.com\r\n\
 To: bob@example.net\r\n\
@@ -57,7 +59,10 @@ fn multipart_tree_walk() {
 fn first_text_body_decodes() {
     let parts = walk_parts(MULTIPART);
     let text = first_text_body(MULTIPART, &parts).expect("text/plain present");
-    assert_eq!(String::from_utf8_lossy(&text).trim_end(), "Hello plain world");
+    assert_eq!(
+        String::from_utf8_lossy(&text).trim_end(),
+        "Hello plain world"
+    );
     // QP decode on the html part.
     let html = &parts[2];
     assert_eq!(html.transfer_encoding, "quoted-printable");
@@ -68,13 +73,19 @@ fn first_text_body_decodes() {
 #[test]
 fn attachment_detection_and_base64() {
     let parts = walk_parts(ATTACHMENT);
-    let pdf = parts.iter().find(|p| p.content_type == "application/pdf").expect("pdf part");
+    let pdf = parts
+        .iter()
+        .find(|p| p.content_type == "application/pdf")
+        .expect("pdf part");
     assert!(pdf.is_attachment());
     assert_eq!(pdf.filename.as_deref(), Some("report.pdf"));
     let body = email8_mail_core::decode_part(ATTACHMENT, pdf);
     assert_eq!(String::from_utf8_lossy(&body), "%PDF-1.4");
     // The plain part is not an attachment.
-    let plain = parts.iter().find(|p| p.content_type == "text/plain").unwrap();
+    let plain = parts
+        .iter()
+        .find(|p| p.content_type == "text/plain")
+        .unwrap();
     assert!(!plain.is_attachment());
 }
 
@@ -95,7 +106,10 @@ fn malformed_fallback() {
     // No boundary terminator — final segment takes the rest.
     let raw = b"From: a@b.c\r\nContent-Type: multipart/mixed; boundary=\"Z\"\r\n\r\n--Z\r\nContent-Type: text/plain\r\n\r\nunterminated body";
     let parts = walk_parts(raw);
-    let one = parts.iter().filter(|p| p.content_type == "text/plain").count();
+    let one = parts
+        .iter()
+        .filter(|p| p.content_type == "text/plain")
+        .count();
     assert_eq!(one, 1);
 }
 
@@ -105,7 +119,10 @@ fn lang_detection() {
         detect_tsvector_lang("the quick brown fox is jumping over the lazy dog and it runs"),
         "english"
     );
-    assert_eq!(detect_tsvector_lang("der hund ist nicht in der stadt und die katze"), "german");
+    assert_eq!(
+        detect_tsvector_lang("der hund ist nicht in der stadt und die katze"),
+        "german"
+    );
     assert_eq!(detect_tsvector_lang("hello"), "simple");
     assert_eq!(detect_tsvector_lang("你好世界 这是一个测试"), "simple");
 }

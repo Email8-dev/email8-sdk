@@ -79,7 +79,8 @@ pub fn notify_due_at(kind: QueueKind, enqueued_at: &DateTime<Utc>) -> Option<Dat
 
 /// Resolve the expires_at boundary for a queue message.
 pub fn resolve_expiry(kind: QueueKind, enqueued_at: &DateTime<Utc>) -> Option<DateTime<Utc>> {
-    kind.expiry_ttl().map(|ttl| *enqueued_at + chrono::Duration::seconds(ttl))
+    kind.expiry_ttl()
+        .map(|ttl| *enqueued_at + chrono::Duration::seconds(ttl))
 }
 
 /// Classify a remote SMTP reply into (retryable, done).

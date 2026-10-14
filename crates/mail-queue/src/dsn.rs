@@ -56,19 +56,31 @@ pub fn build_dsn(
     let subject = match dsn_type {
         DsnType::Success => format!("Successful delivery report from {mta_host}"),
         DsnType::Delay => format!("Warning: delayed message from {mta_host}"),
-        DsnType::Failure => format!("Undelivered Mail Returned to Sender"),
+        DsnType::Failure => "Undelivered Mail Returned to Sender".to_string(),
     };
     // ── Part 1: human-readable text ──
     let mut text = String::new();
-    text.push_str(&format!("The {mta_host} mail program generated the following report.\r\n\r\n"));
+    text.push_str(&format!(
+        "The {mta_host} mail program generated the following report.\r\n\r\n"
+    ));
     if let Some(sender) = original_envelope_id {
-        text.push_str(&format!("Your message was received with envelope id {sender}.\r\n\r\n"));
+        text.push_str(&format!(
+            "Your message was received with envelope id {sender}.\r\n\r\n"
+        ));
     }
     for r in recipients {
         match dsn_type {
-            DsnType::Success => text.push_str(&format!("Delivery to <{}> was successful.\r\n", r.address)),
-            DsnType::Delay => text.push_str(&format!("Delivery to <{}> has been delayed; further attempts continue.\r\n", r.address)),
-            DsnType::Failure => text.push_str(&format!("Delivery to <{}> failed permanently.\r\n", r.address)),
+            DsnType::Success => {
+                text.push_str(&format!("Delivery to <{}> was successful.\r\n", r.address))
+            }
+            DsnType::Delay => text.push_str(&format!(
+                "Delivery to <{}> has been delayed; further attempts continue.\r\n",
+                r.address
+            )),
+            DsnType::Failure => text.push_str(&format!(
+                "Delivery to <{}> failed permanently.\r\n",
+                r.address
+            )),
         }
         if let Some(d) = &r.diagnostic {
             text.push_str(&format!("  Remote reply: {d}\r\n"));
@@ -83,7 +95,10 @@ pub fn build_dsn(
     if let Some(id) = original_envelope_id {
         status.push_str(&format!("Original-Envelope-Id: {id}\r\n"));
     }
-    status.push_str(&format!("Arrival-Date: {}\r\n\r\n", now.format("%a, %d %b %Y %H:%M:%S +0000")));
+    status.push_str(&format!(
+        "Arrival-Date: {}\r\n\r\n",
+        now.format("%a, %d %b %Y %H:%M:%S +0000")
+    ));
     for r in recipients {
         status.push_str("Final-Recipient: rfc822; ");
         status.push_str(&r.address);
@@ -102,15 +117,20 @@ pub fn build_dsn(
     let headers_text = String::from_utf8_lossy(header_window).to_string();
 
     let mut out = String::new();
-    out.push_str(&format!("From: Mail Delivery System <postmaster@{mta_host}>\r\n"));
+    out.push_str(&format!(
+        "From: Mail Delivery System <postmaster@{mta_host}>\r\n"
+    ));
     out.push_str(&format!("To: {report_from}\r\n"));
     out.push_str(&format!("Subject: {subject}\r\n"));
     out.push_str(&format!("Date: {}\r\n", now.to_rfc2822()));
-    out.push_str(&format!("Auto-Submitted: auto-replied ({}\r\n)\r\n", match dsn_type {
-        DsnType::Success => "delivery-status",
-        DsnType::Delay => "delivery-status",
-        DsnType::Failure => "delivery-status",
-    }));
+    out.push_str(&format!(
+        "Auto-Submitted: auto-replied ({}\r\n)\r\n",
+        match dsn_type {
+            DsnType::Success => "delivery-status",
+            DsnType::Delay => "delivery-status",
+            DsnType::Failure => "delivery-status",
+        }
+    ));
     out.push_str("MIME-Version: 1.0\r\n");
     out.push_str(&format!(
         "Content-Type: multipart/report; report-type=delivery-status; boundary=\"{boundary}\"\r\n\r\n"
@@ -213,6 +233,10 @@ mod tests {
                 diagnostic: None,
             }],
         );
-        assert!(msg.len() < 60_000, "dsn body must stay bounded, got {}", msg.len());
+        assert!(
+            msg.len() < 60_000,
+            "dsn body must stay bounded, got {}",
+            msg.len()
+        );
     }
 }

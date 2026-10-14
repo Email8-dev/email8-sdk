@@ -126,8 +126,14 @@ mod tests {
 
     #[test]
     fn normalizes_reply_chains() {
-        assert_eq!(normalize_subject("Re: Re: FWD: Hello World!"), "hello world");
-        assert_eq!(normalize_subject("Re: [External] re: report"), "external report");
+        assert_eq!(
+            normalize_subject("Re: Re: FWD: Hello World!"),
+            "hello world"
+        );
+        assert_eq!(
+            normalize_subject("Re: [External] re: report"),
+            "external report"
+        );
     }
 
     #[test]
@@ -153,6 +159,6 @@ mod tests {
         let a = vec!["x@y".to_string(), "z@w".to_string()];
         let b = vec!["z@w".to_string(), "x@y".to_string()];
         assert!(same_reference_set(&a, &b));
-        assert!(!same_reference_set(&a, &vec!["q@r".to_string()]));
+        assert!(!same_reference_set(&a, &["q@r".to_string()]));
     }
 }

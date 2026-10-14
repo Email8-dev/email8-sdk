@@ -145,7 +145,12 @@ fn parse_element(s: &str, pos: &mut usize) -> Option<XmlNode> {
     }
     *pos += tag_end + 1;
     if self_closing {
-        return Some(XmlNode { name, attrs, children: Vec::new(), text: String::new() });
+        return Some(XmlNode {
+            name,
+            attrs,
+            children: Vec::new(),
+            text: String::new(),
+        });
     }
     // Children/text until the closing tag.
     let mut children = Vec::new();
@@ -154,12 +159,22 @@ fn parse_element(s: &str, pos: &mut usize) -> Option<XmlNode> {
     loop {
         let rest = &s[*pos..];
         if rest.is_empty() {
-            return Some(XmlNode { name, attrs, children, text }); // unclosed — tolerate
+            return Some(XmlNode {
+                name,
+                attrs,
+                children,
+                text,
+            }); // unclosed — tolerate
         }
         if rest.trim_start().starts_with(&close) {
             let end = rest.find('>')?;
             *pos += end + 1;
-            return Some(XmlNode { name, attrs, children, text });
+            return Some(XmlNode {
+                name,
+                attrs,
+                children,
+                text,
+            });
         }
         if rest.trim_start().starts_with('<') {
             let before = rest.trim_start();
@@ -216,7 +231,7 @@ fn decode_entities(s: &str) -> String {
             _ => out.push_str(&s[i..semi + 1]),
         }
         // Advance past the entity.
-        while let Some((j, _)) = chars.next() {
+        for (j, _) in chars.by_ref() {
             if j >= semi {
                 break;
             }
@@ -229,19 +244,17 @@ impl XmlNode {
     /// First child matching `name` — exact match, or local-name match
     /// when the query has no prefix (accepts any prefix like `D:`).
     pub fn child(&self, name: &str) -> Option<&XmlNode> {
-        self.children
-            .iter()
-            .find(|c| {
-                if c.name == name {
-                    return true;
-                }
-                // Query "prop" matches "D:prop" — but query "D:prop" only
-                // matches "D:prop" exactly.
-                if !name.contains(':') {
-                    return c.name.rsplit(':').next() == Some(name) && c.name.contains(':');
-                }
-                false
-            })
+        self.children.iter().find(|c| {
+            if c.name == name {
+                return true;
+            }
+            // Query "prop" matches "D:prop" — but query "D:prop" only
+            // matches "D:prop" exactly.
+            if !name.contains(':') {
+                return c.name.rsplit(':').next() == Some(name) && c.name.contains(':');
+            }
+            false
+        })
     }
 
     /// All children matching `name` (same rule as `child`).
@@ -284,7 +297,10 @@ impl Default for Xml {
 
 impl Xml {
     pub fn new() -> Self {
-        Self { out: String::new(), ns: Vec::new() }
+        Self {
+            out: String::new(),
+            ns: Vec::new(),
+        }
     }
 
     pub fn with_ns(mut self, prefix: &str, uri: &str) -> Self {
@@ -294,7 +310,8 @@ impl Xml {
 
     /// Open the root element.
     pub fn open(&mut self, name: &str) {
-        self.out.push_str("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<");
+        self.out
+            .push_str("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<");
         self.out.push_str(name);
         for (prefix, uri) in &self.ns {
             self.out

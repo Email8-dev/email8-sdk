@@ -6,8 +6,8 @@
 //! Authentication-Results (RFC 8601) builder — the `auth` header Mta
 //! prepends after the inbound pipeline, plus the Received-SPF header.
 
-use crate::dmarc::DmarcResult;
 use crate::dkim::{DkimStatus, SingleDkim};
+use crate::dmarc::DmarcResult;
 use crate::spf::SpfResult;
 
 /// One `method=value (comment)` entry.
@@ -67,7 +67,9 @@ pub fn build_results(
         method: "spf",
         value: spf.token(),
         reason: match spf {
-            SpfResult::Fail(m) | SpfResult::TempError(m) | SpfResult::PermError(m) => Some(m.clone()),
+            SpfResult::Fail(m) | SpfResult::TempError(m) | SpfResult::PermError(m) => {
+                Some(m.clone())
+            }
             _ => None,
         },
         property: Some(("smtp.mail".into(), spf_domain.to_string())),
@@ -96,9 +98,7 @@ pub fn build_results(
                 crate::dmarc::DmarcDisposition::Quarantine => "quarantine",
                 crate::dmarc::DmarcDisposition::Reject => "reject",
             },
-            p.subdomain_policy
-                .map(|_| "")
-                .unwrap_or_default(),
+            p.subdomain_policy.map(|_| "").unwrap_or_default(),
             match dmarc.disposition {
                 crate::dmarc::DmarcDisposition::None => "none",
                 crate::dmarc::DmarcDisposition::Quarantine => "quarantine",
@@ -110,7 +110,14 @@ pub fn build_results(
         method: "dmarc",
         value: dmarc.result,
         reason: (!reason.is_empty()).then_some(reason),
-        property: Some(("header.from".into(), dmarc.policy.as_ref().map(|p| p.domain.clone()).unwrap_or_default())),
+        property: Some((
+            "header.from".into(),
+            dmarc
+                .policy
+                .as_ref()
+                .map(|p| p.domain.clone())
+                .unwrap_or_default(),
+        )),
     });
     ar
 }

@@ -190,9 +190,8 @@ pub fn arc_seal(
         data.push_str(&canon_relaxed("arc-seal", s));
     }
     let t = chrono::Utc::now().timestamp();
-    let header_no_b = format!(
-        "i={instance}; a={algorithm}; cv={cv}; d={domain}; s={selector}; t={t}; b="
-    );
+    let header_no_b =
+        format!("i={instance}; a={algorithm}; cv={cv}; d={domain}; s={selector}; t={t}; b=");
     // The AS header itself is signed last (b= empty, relaxed, no CRLF).
     data.push_str(&canon_relaxed("arc-seal", &header_no_b));
     let signature_b64 = sign_data(key, data.as_bytes())?;
@@ -208,12 +207,18 @@ fn sign_data(key: &crate::dkim::DkimKey, data: &[u8]) -> Result<String, String> 
             use rsa::pkcs8::DecodePrivateKey;
             use sha2::Digest;
             let sk = rsa::RsaPrivateKey::from_pkcs8_pem(
-                String::from_utf8(pem.to_vec()).map_err(|e| e.to_string())?.as_str(),
+                String::from_utf8(pem.to_vec())
+                    .map_err(|e| e.to_string())?
+                    .as_str(),
             )
             .map_err(|e| format!("bad rsa key: {e}"))?;
             let hashed = sha2::Sha256::digest(data);
             let sig = sk
-                .sign_with_rng(&mut rsa::rand_core::OsRng, rsa::Pkcs1v15Sign::new::<sha2::Sha256>(), &hashed)
+                .sign_with_rng(
+                    &mut rsa::rand_core::OsRng,
+                    rsa::Pkcs1v15Sign::new::<sha2::Sha256>(),
+                    &hashed,
+                )
                 .map_err(|e| e.to_string())?;
             Ok(base64::engine::general_purpose::STANDARD.encode(sig))
         }
@@ -226,7 +231,9 @@ fn sign_data(key: &crate::dkim::DkimKey, data: &[u8]) -> Result<String, String> 
             } else {
                 use ed25519_dalek::pkcs8::DecodePrivateKey;
                 ed25519_dalek::SigningKey::from_pkcs8_pem(
-                    String::from_utf8(bytes.to_vec()).map_err(|e| e.to_string())?.as_str(),
+                    String::from_utf8(bytes.to_vec())
+                        .map_err(|e| e.to_string())?
+                        .as_str(),
                 )
                 .map_err(|e| format!("bad ed25519 key: {e}"))?
             };
@@ -337,7 +344,10 @@ mod tests {
 
     #[test]
     fn canon_relaxed_collapses_ws() {
-        assert_eq!(canon_relaxed("ARC-Seal", "  i=1;   a=x  "), "arc-seal:i=1; a=x\r\n");
+        assert_eq!(
+            canon_relaxed("ARC-Seal", "  i=1;   a=x  "),
+            "arc-seal:i=1; a=x\r\n"
+        );
     }
 
     #[test]
@@ -352,12 +362,17 @@ mod tests {
             .unwrap();
         fn dns(name: &str) -> Result<Vec<String>, String> {
             if name.starts_with("s._domainkey") {
-                Ok(vec!["v=DKIM1; k=rsa; p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA".into()])
+                Ok(vec![
+                    "v=DKIM1; k=rsa; p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA".into(),
+                ])
             } else {
                 Err(format!("unexpected {name}"))
             }
         }
-        let res = rt.block_on(arc_verify(&crate::FnDnsTxt(dns as fn(&str) -> Result<Vec<String>, String>), raw));
+        let res = rt.block_on(arc_verify(
+            &crate::FnDnsTxt(dns as fn(&str) -> Result<Vec<String>, String>),
+            raw,
+        ));
         assert_eq!(res, ArcChainResult::Pass);
     }
 }

@@ -17,11 +17,19 @@ pub struct Reply {
 
 impl Reply {
     pub fn new(code: u16, text: impl Into<String>) -> Self {
-        Self { code, enhanced: None, text: text.into() }
+        Self {
+            code,
+            enhanced: None,
+            text: text.into(),
+        }
     }
 
     pub fn enhanced(code: u16, major: u8, minor: u8, detail: u16, text: impl Into<String>) -> Self {
-        Self { code, enhanced: Some((major, minor, detail as u8)), text: text.into() }
+        Self {
+            code,
+            enhanced: Some((major, minor, detail as u8)),
+            text: text.into(),
+        }
     }
 
     /// Serialize to wire form (single-line).
@@ -59,7 +67,10 @@ pub fn ok() -> Reply {
 }
 
 pub fn ok_queued(queue_id: &str) -> Reply {
-    Reply::new(250, format!("Message accepted for delivery (queue {queue_id})"))
+    Reply::new(
+        250,
+        format!("Message accepted for delivery (queue {queue_id})"),
+    )
 }
 
 pub fn starttls_ready() -> Reply {
@@ -111,7 +122,13 @@ pub fn sender_not_allowed() -> Reply {
 }
 
 pub fn sender_binding_rejected() -> Reply {
-    Reply::enhanced(501, 5, 5, 4, "You are not allowed to send from this address")
+    Reply::enhanced(
+        501,
+        5,
+        5,
+        4,
+        "You are not allowed to send from this address",
+    )
 }
 
 pub fn rcpt_not_found() -> Reply {
@@ -143,7 +160,13 @@ pub fn spam_reject() -> Reply {
 }
 
 pub fn greylisted() -> Reply {
-    Reply::enhanced(452, 4, 2, 2, "Greylisted, please try again in a few moments")
+    Reply::enhanced(
+        452,
+        4,
+        2,
+        2,
+        "Greylisted, please try again in a few moments",
+    )
 }
 
 pub fn rate_limited() -> Reply {
@@ -187,7 +210,10 @@ mod tests {
 
     #[test]
     fn ehlo_capability_lines() {
-        let lines = ehlo("mx.example.com", &["SIZE 26214400".into(), "PIPELINING".into()]);
+        let lines = ehlo(
+            "mx.example.com",
+            &["SIZE 26214400".into(), "PIPELINING".into()],
+        );
         assert_eq!(lines[0], "250-mx.example.com at your service.");
         assert_eq!(lines[1], "250-SIZE 26214400");
         assert_eq!(lines[2], "250 PIPELINING");

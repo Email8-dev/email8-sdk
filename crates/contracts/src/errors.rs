@@ -72,9 +72,7 @@ impl Email8ErrorCode {
             | Self::IdentityNotFound
             | Self::DomainNotFound
             | Self::DkimKeyNotFound => 404,
-            Self::QuotaExceeded
-            | Self::BlobQuotaExceeded
-            | Self::QueueFull => 402,
+            Self::QuotaExceeded | Self::BlobQuotaExceeded | Self::QueueFull => 402,
             Self::RelayDenied | Self::SenderAddressRejected => 403,
             Self::Greylisted => 429,
             Self::DmarcPolicyReject | Self::SpamScoreReject => 422,

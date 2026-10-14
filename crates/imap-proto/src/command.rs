@@ -23,21 +23,59 @@ pub enum Op {
     Noop,
     Logout,
     StartTls,
-    Authenticate { mechanism: String, initial: Option<String> },
-    Sasl { token: String },
-    Login { username: String, password: String },
-    Enable { capabilities: Vec<String> },
-    Id { payload: Option<String> },
-    Select { mailbox: String },
-    Examine { mailbox: String },
-    Create { mailbox: String },
-    Delete { mailbox: String },
-    Rename { from: String, to: String },
-    Subscribe { mailbox: String },
-    Unsubscribe { mailbox: String },
-    List { reference: String, pattern: String, options: Vec<String>, extended: bool },
-    Lsub { reference: String, pattern: String },
-    Status { mailbox: String, items: Vec<StatusItem> },
+    Authenticate {
+        mechanism: String,
+        initial: Option<String>,
+    },
+    Sasl {
+        token: String,
+    },
+    Login {
+        username: String,
+        password: String,
+    },
+    Enable {
+        capabilities: Vec<String>,
+    },
+    Id {
+        payload: Option<String>,
+    },
+    Select {
+        mailbox: String,
+    },
+    Examine {
+        mailbox: String,
+    },
+    Create {
+        mailbox: String,
+    },
+    Delete {
+        mailbox: String,
+    },
+    Rename {
+        from: String,
+        to: String,
+    },
+    Subscribe {
+        mailbox: String,
+    },
+    Unsubscribe {
+        mailbox: String,
+    },
+    List {
+        reference: String,
+        pattern: String,
+        options: Vec<String>,
+        extended: bool,
+    },
+    Lsub {
+        reference: String,
+        pattern: String,
+    },
+    Status {
+        mailbox: String,
+        items: Vec<StatusItem>,
+    },
     Append {
         mailbox: String,
         flags: Vec<String>,
@@ -47,9 +85,17 @@ pub enum Op {
     Check,
     Close,
     Unselect,
-    Expunge { uids: Option<Vec<String>> },
-    Search { criteria: SearchCriteria },
-    Fetch { sequence: SequenceSet, items: Vec<FetchItem>, uid: bool },
+    Expunge {
+        uids: Option<Vec<String>>,
+    },
+    Search {
+        criteria: SearchCriteria,
+    },
+    Fetch {
+        sequence: SequenceSet,
+        items: Vec<FetchItem>,
+        uid: bool,
+    },
     Store {
         sequence: SequenceSet,
         items: Vec<StoreItem>,
@@ -57,8 +103,16 @@ pub enum Op {
         uid: bool,
         unchanged_since: Option<u64>,
     },
-    Copy { sequence: SequenceSet, mailbox: String, uid: bool },
-    Move { sequence: SequenceSet, mailbox: String, uid: bool },
+    Copy {
+        sequence: SequenceSet,
+        mailbox: String,
+        uid: bool,
+    },
+    Move {
+        sequence: SequenceSet,
+        mailbox: String,
+        uid: bool,
+    },
     /// RFC 5256 SORT — sort keys + search criteria (the search filters
     /// the candidate set, the keys define order).
     Sort {
@@ -67,11 +121,17 @@ pub enum Op {
         uid: bool,
     },
     /// RFC 5256 THREAD — REFERENCES | ORDEREDSUBJECT algorithm.
-    Thread { algorithm: String, criteria: SearchCriteria, uid: bool },
+    Thread {
+        algorithm: String,
+        criteria: SearchCriteria,
+        uid: bool,
+    },
     Idle,
     Done,
     /// Anything else — answered BAD without a typed model.
-    Unsupported { name: String },
+    Unsupported {
+        name: String,
+    },
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -95,10 +155,18 @@ pub enum FetchItem {
     Rfc822Header,
     Rfc822,
     Envelope,
-    BodyStructure { extended: bool },
-    Body { section: String, partial: Option<(u64, u64)>, peek: bool },
+    BodyStructure {
+        extended: bool,
+    },
+    Body {
+        section: String,
+        partial: Option<(u64, u64)>,
+        peek: bool,
+    },
     ModSeq,
-    Preview { lazy: bool },
+    Preview {
+        lazy: bool,
+    },
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -142,7 +210,11 @@ impl SequenceSet {
         self.0.iter().any(|r| {
             let start = r.start;
             let end = r.end.unwrap_or(max);
-            let (lo, hi) = if start <= end { (start, end) } else { (end, start) };
+            let (lo, hi) = if start <= end {
+                (start, end)
+            } else {
+                (end, start)
+            };
             value >= lo && value <= hi
         })
     }
@@ -193,14 +265,30 @@ fn parse_op(rest: &str) -> Option<Op> {
             let password = unquote(p.next()?)?;
             Some(Op::Login { username, password })
         }
-        "ENABLE" => Some(Op::Enable { capabilities: args.split_whitespace().map(|s| s.to_string()).collect() }),
-        "ID" => Some(Op::Id { payload: Some(args.to_string()) }),
-        "SELECT" => Some(Op::Select { mailbox: unquote(args)? }),
-        "EXAMINE" => Some(Op::Examine { mailbox: unquote(args)? }),
-        "CREATE" => Some(Op::Create { mailbox: unquote(args)? }),
-        "DELETE" => Some(Op::Delete { mailbox: unquote(args)? }),
-        "SUBSCRIBE" => Some(Op::Subscribe { mailbox: unquote(args)? }),
-        "UNSUBSCRIBE" => Some(Op::Unsubscribe { mailbox: unquote(args)? }),
+        "ENABLE" => Some(Op::Enable {
+            capabilities: args.split_whitespace().map(|s| s.to_string()).collect(),
+        }),
+        "ID" => Some(Op::Id {
+            payload: Some(args.to_string()),
+        }),
+        "SELECT" => Some(Op::Select {
+            mailbox: unquote(args)?,
+        }),
+        "EXAMINE" => Some(Op::Examine {
+            mailbox: unquote(args)?,
+        }),
+        "CREATE" => Some(Op::Create {
+            mailbox: unquote(args)?,
+        }),
+        "DELETE" => Some(Op::Delete {
+            mailbox: unquote(args)?,
+        }),
+        "SUBSCRIBE" => Some(Op::Subscribe {
+            mailbox: unquote(args)?,
+        }),
+        "UNSUBSCRIBE" => Some(Op::Unsubscribe {
+            mailbox: unquote(args)?,
+        }),
         "RENAME" => {
             let mut p = args.splitn(2, ' ');
             let from = unquote(p.next()?)?;
@@ -218,7 +306,12 @@ fn parse_op(rest: &str) -> Option<Op> {
             let mut p = stripped.splitn(2, ' ');
             let reference = unquote(p.next().unwrap_or(""))?;
             let pattern = unquote(p.next().unwrap_or(""))?;
-            Some(Op::List { reference, pattern, options: vec![], extended })
+            Some(Op::List {
+                reference,
+                pattern,
+                options: vec![],
+                extended,
+            })
         }
         "LSUB" => {
             let mut p = args.splitn(2, ' ');
@@ -266,9 +359,17 @@ fn parse_op(rest: &str) -> Option<Op> {
                 work = work[end + 1..].trim();
             }
             let literal_spec = work.strip_prefix('{')?.strip_suffix('}')?;
-            let literal_size: usize =
-                literal_spec.strip_suffix('+').unwrap_or(literal_spec).parse().ok()?;
-            Some(Op::Append { mailbox, flags, date_time, literal_size })
+            let literal_size: usize = literal_spec
+                .strip_suffix('+')
+                .unwrap_or(literal_spec)
+                .parse()
+                .ok()?;
+            Some(Op::Append {
+                mailbox,
+                flags,
+                date_time,
+                literal_size,
+            })
         }
         "EXPUNGE" => Some(Op::Expunge { uids: None }),
         "SORT" => parse_sort(args, false),
@@ -281,20 +382,30 @@ fn parse_op(rest: &str) -> Option<Op> {
                 None => (sub_args, ""),
             };
             match sub.to_ascii_uppercase().as_str() {
-                "EXPUNGE" => Some(Op::Expunge { uids: Some(sub_args.split(',').map(|s| s.to_string()).collect()) }),
+                "EXPUNGE" => Some(Op::Expunge {
+                    uids: Some(sub_args.split(',').map(|s| s.to_string()).collect()),
+                }),
                 "FETCH" => parse_fetch(sub_args, true),
                 "STORE" => parse_store(sub_args, true),
                 "COPY" => {
                     let mut p = sub_args.splitn(2, ' ');
                     let sequence = parse_sequence(p.next()?)?;
                     let mailbox = unquote(p.next()?)?;
-                    Some(Op::Copy { sequence, mailbox, uid: true })
+                    Some(Op::Copy {
+                        sequence,
+                        mailbox,
+                        uid: true,
+                    })
                 }
                 "MOVE" => {
                     let mut p = sub_args.splitn(2, ' ');
                     let sequence = parse_sequence(p.next()?)?;
                     let mailbox = unquote(p.next()?)?;
-                    Some(Op::Move { sequence, mailbox, uid: true })
+                    Some(Op::Move {
+                        sequence,
+                        mailbox,
+                        uid: true,
+                    })
                 }
                 "SORT" => parse_sort(sub_args, true),
                 "THREAD" => parse_thread(sub_args, true),
@@ -307,16 +418,26 @@ fn parse_op(rest: &str) -> Option<Op> {
             let mut p = args.splitn(2, ' ');
             let sequence = parse_sequence(p.next()?)?;
             let mailbox = unquote(p.next()?)?;
-            Some(Op::Copy { sequence, mailbox, uid: false })
+            Some(Op::Copy {
+                sequence,
+                mailbox,
+                uid: false,
+            })
         }
         "MOVE" => {
             let mut p = args.splitn(2, ' ');
             let sequence = parse_sequence(p.next()?)?;
             let mailbox = unquote(p.next()?)?;
-            Some(Op::Move { sequence, mailbox, uid: false })
+            Some(Op::Move {
+                sequence,
+                mailbox,
+                uid: false,
+            })
         }
         "SEARCH" => parse_search(args),
-        _ => Some(Op::Unsupported { name: verb.to_string() }),
+        _ => Some(Op::Unsupported {
+            name: verb.to_string(),
+        }),
     }
 }
 
@@ -325,7 +446,11 @@ fn parse_fetch(args: &str, uid: bool) -> Option<Op> {
     let sequence = parse_sequence(p.next()?)?;
     let items_str = p.next().unwrap_or("ALL").trim();
     let items = parse_fetch_items(items_str)?;
-    Some(Op::Fetch { sequence, items, uid })
+    Some(Op::Fetch {
+        sequence,
+        items,
+        uid,
+    })
 }
 
 fn parse_fetch_items(spec: &str) -> Option<Vec<FetchItem>> {
@@ -353,7 +478,10 @@ fn parse_fetch_items(spec: &str) -> Option<Vec<FetchItem>> {
         return Some(items);
     }
     // Either a paren list or a single atom.
-    let inner = spec.strip_prefix('(').map(|s| s.strip_suffix(')').unwrap_or(s)).unwrap_or(spec);
+    let inner = spec
+        .strip_prefix('(')
+        .map(|s| s.strip_suffix(')').unwrap_or(s))
+        .unwrap_or(spec);
     let mut rest = inner;
     while !rest.is_empty() {
         rest = rest.trim_start();
@@ -372,7 +500,11 @@ fn parse_fetch_items(spec: &str) -> Option<Vec<FetchItem>> {
             } else {
                 (None, 0)
             };
-            items.push(FetchItem::Body { section, partial, peek: true });
+            items.push(FetchItem::Body {
+                section,
+                partial,
+                peek: true,
+            });
             rest = &after[consumed..];
             continue;
         }
@@ -390,12 +522,18 @@ fn parse_fetch_items(spec: &str) -> Option<Vec<FetchItem>> {
             } else {
                 (None, 0)
             };
-            items.push(FetchItem::Body { section, partial, peek: false });
+            items.push(FetchItem::Body {
+                section,
+                partial,
+                peek: false,
+            });
             rest = &after[consumed..];
             continue;
         }
         // Plain atom (FLAGS, UID, RFC822.SIZE, BODYSTRUCTURE, ...)
-        let end = rest.find(|c: char| c.is_whitespace() || c == '(').unwrap_or(rest.len());
+        let end = rest
+            .find(|c: char| c.is_whitespace() || c == '(')
+            .unwrap_or(rest.len());
         let tok = &rest[..end];
         let upper = tok.to_ascii_uppercase();
         match upper.as_str() {
@@ -438,21 +576,24 @@ fn parse_store(args: &str, uid: bool) -> Option<Op> {
     };
     let silent = token.ends_with(".SILENT");
     let token = token.strip_suffix(".SILENT").unwrap_or(token);
-    let (action, flags_str): (fn(BTreeSet<String>) -> StoreItem, &str) = match token.strip_prefix('+') {
-        Some(_) => (StoreItem::Add, tail),
-        None => match token.strip_prefix('-') {
-            Some(_) => (StoreItem::Remove, tail),
-            None => (StoreItem::Flags, tail),
-        },
-    };
+    let (action, flags_str): (fn(BTreeSet<String>) -> StoreItem, &str) =
+        match token.strip_prefix('+') {
+            Some(_) => (StoreItem::Add, tail),
+            None => match token.strip_prefix('-') {
+                Some(_) => (StoreItem::Remove, tail),
+                None => (StoreItem::Flags, tail),
+            },
+        };
     // Flags may be parenthesized: `(\Seen $label)` — unwrap, then split.
     let flags_str = flags_str.trim();
     let flags_str = flags_str
         .strip_prefix('(')
         .and_then(|s| s.strip_suffix(')'))
         .unwrap_or(flags_str);
-    let flags: BTreeSet<String> =
-        flags_str.trim().split_whitespace().map(|f| f.to_string()).collect();
+    let flags: BTreeSet<String> = flags_str
+        .split_whitespace()
+        .map(|f| f.to_string())
+        .collect();
     Some(Op::Store {
         sequence,
         items: vec![action(flags)],
@@ -480,7 +621,11 @@ fn parse_sort(args: &str, uid: bool) -> Option<Op> {
     let mut it = after.splitn(2, ' ');
     let _charset = it.next()?;
     let criteria = parse_criteria(it.next().unwrap_or("ALL"))?;
-    Some(Op::Sort { keys, criteria, uid })
+    Some(Op::Sort {
+        keys,
+        criteria,
+        uid,
+    })
 }
 
 /// RFC 5256 THREAD parse: `THREAD REFERENCES|ORDEREDSUBJECT charset crit`.
@@ -492,11 +637,17 @@ fn parse_thread(args: &str, uid: bool) -> Option<Op> {
     }
     let _charset = it.next()?;
     let criteria = parse_criteria(it.next().unwrap_or("ALL"))?;
-    Some(Op::Thread { algorithm, criteria, uid })
+    Some(Op::Thread {
+        algorithm,
+        criteria,
+        uid,
+    })
 }
 
 fn parse_search(args: &str) -> Option<Op> {
-    Some(Op::Search { criteria: parse_criteria(args)? })
+    Some(Op::Search {
+        criteria: parse_criteria(args)?,
+    })
 }
 
 /// Parse the shared SEARCH criteria grammar (also the SORT/THREAD
@@ -531,7 +682,10 @@ fn parse_criteria(args: &str) -> Option<SearchCriteria> {
             _ => {
                 // Bare sequence set or a date — treat a numeric token as a
                 // sequence match; ignore unknowns conservatively.
-                if tok.chars().all(|c| c.is_ascii_digit() || c == '*' || c == ',' || c == ':') {
+                if tok
+                    .chars()
+                    .all(|c| c.is_ascii_digit() || c == '*' || c == ',' || c == ':')
+                {
                     // Sequence sets in SEARCH are position-based; the Access
                     // server maps them. Keep the raw start values.
                     if let Ok(v) = tok.parse::<u64>() {
@@ -554,12 +708,19 @@ fn parse_sequence(spec: &str) -> Option<SequenceSet> {
         match part.split_once(':') {
             Some((a, b)) => {
                 let start: u64 = a.parse().ok()?;
-                let end = if b == "*" { None } else { Some(b.parse().ok()?) };
+                let end = if b == "*" {
+                    None
+                } else {
+                    Some(b.parse().ok()?)
+                };
                 ranges.push(SequenceRange { start, end });
             }
             None => {
                 let start: u64 = part.parse().ok()?;
-                ranges.push(SequenceRange { start, end: Some(start) });
+                ranges.push(SequenceRange {
+                    start,
+                    end: Some(start),
+                });
             }
         }
     }
@@ -601,18 +762,34 @@ mod tests {
     #[test]
     fn parses_select_quoted() {
         let c = parse("a2 SELECT \"INBOX\"").unwrap();
-        assert_eq!(c.op, Op::Select { mailbox: "INBOX".into() });
+        assert_eq!(
+            c.op,
+            Op::Select {
+                mailbox: "INBOX".into()
+            }
+        );
     }
 
     #[test]
     fn parses_fetch_body_peek_partial() {
         let c = parse("a3 FETCH 1:3 (UID FLAGS BODY.PEEK[]<0.2048>)").unwrap();
         match c.op {
-            Op::Fetch { sequence, items, uid } => {
+            Op::Fetch {
+                sequence,
+                items,
+                uid,
+            } => {
                 assert!(!uid);
                 assert!(sequence.contains(1, 3));
                 assert!(sequence.contains(3, 3));
-                assert!(items.iter().any(|i| matches!(i, FetchItem::Body { peek: true, partial: Some((0, 2048)), .. })));
+                assert!(items.iter().any(|i| matches!(
+                    i,
+                    FetchItem::Body {
+                        peek: true,
+                        partial: Some((0, 2048)),
+                        ..
+                    }
+                )));
             }
             other => panic!("{other:?}"),
         }
@@ -622,7 +799,13 @@ mod tests {
     fn parses_uid_store_silent() {
         let c = parse("a4 UID STORE 5 +FLAGS.SILENT (\\Seen $label)").unwrap();
         match c.op {
-            Op::Store { items, silent, uid, sequence, .. } => {
+            Op::Store {
+                items,
+                silent,
+                uid,
+                sequence,
+                ..
+            } => {
                 assert!(silent && uid);
                 assert!(sequence.contains(5, 10));
                 match &items[0] {
@@ -653,7 +836,12 @@ mod tests {
     fn parses_append_literal() {
         let c = parse("a6 APPEND \"Drafts\" (\\Draft) {310+}").unwrap();
         match c.op {
-            Op::Append { mailbox, literal_size, flags, .. } => {
+            Op::Append {
+                mailbox,
+                literal_size,
+                flags,
+                ..
+            } => {
                 assert_eq!(mailbox, "Drafts");
                 assert_eq!(literal_size, 310);
                 assert_eq!(flags, vec!["\\Draft".to_string()]);

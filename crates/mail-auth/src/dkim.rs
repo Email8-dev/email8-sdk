@@ -16,16 +16,16 @@ use sha2::{Digest, Sha256};
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct DkimSignature {
     pub version: String,
-    pub algorithm: String, // rsa-sha256 | ed25519-sha256
-    pub domain: String,     // d=
-    pub selector: String,   // s=
-    pub headers: Vec<String>, // h= (lowercased, in order)
-    pub body_hash: String, // bh= (base64)
-    pub signature: String, // b= (base64)
-    pub identity: Option<String>, // i=
-    pub body_length: Option<u64>, // l=
-    pub timestamp: Option<i64>,   // t=
-    pub expiry: Option<i64>,     // x=
+    pub algorithm: String,              // rsa-sha256 | ed25519-sha256
+    pub domain: String,                 // d=
+    pub selector: String,               // s=
+    pub headers: Vec<String>,           // h= (lowercased, in order)
+    pub body_hash: String,              // bh= (base64)
+    pub signature: String,              // b= (base64)
+    pub identity: Option<String>,       // i=
+    pub body_length: Option<u64>,       // l=
+    pub timestamp: Option<i64>,         // t=
+    pub expiry: Option<i64>,            // x=
     pub copied_headers: Option<String>, // z=
     /// Parsed c= pair (header, body) canonicalization modes.
     pub canon: (CanonMode, CanonMode),
@@ -145,7 +145,10 @@ fn canon_body(body: &[u8], mode: CanonMode, length: Option<u64>) -> Vec<u8> {
         CanonMode::Simple => {
             // Strip trailing empty lines; ensure CRLF ending.
             let text = String::from_utf8_lossy(body);
-            let mut s = text.trim_end_matches('\n').trim_end_matches('\r').to_string();
+            let mut s = text
+                .trim_end_matches('\n')
+                .trim_end_matches('\r')
+                .to_string();
             s.push_str("\r\n");
             s.into_bytes()
         }
@@ -210,10 +213,12 @@ pub fn parse_signature(value: &str) -> Option<DkimSignature> {
             "a" => sig.algorithm = v.to_ascii_lowercase(),
             "d" => sig.domain = v.to_ascii_lowercase(),
             "s" => sig.selector = v.to_string(),
-            "h" => sig.headers = v
-                .split(':')
-                .map(|h| h.trim().to_ascii_lowercase())
-                .collect(),
+            "h" => {
+                sig.headers = v
+                    .split(':')
+                    .map(|h| h.trim().to_ascii_lowercase())
+                    .collect()
+            }
             "bh" => sig.body_hash = v.to_string(),
             "b" => sig.signature = v.replace([' ', '\t'], ""),
             "c" => {
@@ -229,8 +234,12 @@ pub fn parse_signature(value: &str) -> Option<DkimSignature> {
             _ => {}
         }
     }
-    if sig.version != "1" || sig.algorithm.is_empty() || sig.domain.is_empty()
-        || sig.selector.is_empty() || sig.headers.is_empty() || sig.signature.is_empty()
+    if sig.version != "1"
+        || sig.algorithm.is_empty()
+        || sig.domain.is_empty()
+        || sig.selector.is_empty()
+        || sig.headers.is_empty()
+        || sig.signature.is_empty()
     {
         return None;
     }
@@ -344,7 +353,8 @@ fn rsa_verify(public_key: &[u8], data: &[u8], sig: &[u8]) -> bool {
         return false;
     };
     let hashed = Sha256::digest(data);
-    key.verify(rsa::Pkcs1v15Sign::new::<Sha256>(), &hashed, sig).is_ok()
+    key.verify(rsa::Pkcs1v15Sign::new::<Sha256>(), &hashed, sig)
+        .is_ok()
 }
 
 fn parse_key_record(record: &str) -> Option<(String, Vec<u8>)> {
@@ -412,7 +422,9 @@ fn build_signed_data(
     if let Some((n, v)) = sig_header {
         let stripped = strip_b_tag(v);
         match mode {
-            CanonMode::Relaxed => data.extend_from_slice(canon_header_relaxed(n, &stripped).as_bytes()),
+            CanonMode::Relaxed => {
+                data.extend_from_slice(canon_header_relaxed(n, &stripped).as_bytes())
+            }
             CanonMode::Simple => {
                 // Simple canon strips the trailing CRLF for the b= hash.
                 let c = canon_header_simple(n, &stripped);
@@ -432,7 +444,8 @@ fn strip_b_tag(value: &str) -> String {
     let mut i = 0usize;
     let bytes = unfolded.as_bytes();
     while i < bytes.len() {
-        if lower[i..].starts_with("b=") && !lower[..i].ends_with("h=")
+        if lower[i..].starts_with("b=")
+            && !lower[..i].ends_with("h=")
             && !lower[..i].ends_with("bh=")
         {
             // Skip the tag; but careful: "bh=" also matches "b=" at the
@@ -478,7 +491,9 @@ fn extract_headers(raw: &[u8]) -> Vec<(String, String)> {
 }
 
 fn find_body_offset(raw: &[u8]) -> usize {
-    memchr::memmem::find(raw, b"\r\n\r\n").map(|p| p + 4).unwrap_or(raw.len())
+    memchr::memmem::find(raw, b"\r\n\r\n")
+        .map(|p| p + 4)
+        .unwrap_or(raw.len())
 }
 
 fn constant_time_eq(a: &str, b: &str) -> bool {
@@ -563,19 +578,26 @@ pub fn dkim_sign(
     // The new DKIM-Signature header participates with an empty b= —
     // canonicalized, no trailing CRLF (RFC 6376 §3.7).
     let pseudo = strip_b_tag(&sig_header);
-    let canon_self = canon_header_relaxed("DKIM-Signature", pseudo.split_once(':').unwrap().1.trim());
+    let canon_self =
+        canon_header_relaxed("DKIM-Signature", pseudo.split_once(':').unwrap().1.trim());
     data.extend_from_slice(canon_self.as_bytes());
     // Compute the signature.
     let signature_b64 = match key {
         DkimKey::Rsa2048(pem) => {
             use rsa::pkcs8::DecodePrivateKey;
             let sk = rsa::RsaPrivateKey::from_pkcs8_pem(
-                String::from_utf8(pem.to_vec()).map_err(|e| e.to_string())?.as_str(),
+                String::from_utf8(pem.to_vec())
+                    .map_err(|e| e.to_string())?
+                    .as_str(),
             )
             .map_err(|e| format!("bad rsa key: {e}"))?;
             let hashed = Sha256::digest(&data);
             let sig = sk
-                .sign_with_rng(&mut rsa::rand_core::OsRng, rsa::Pkcs1v15Sign::new::<Sha256>(), &hashed)
+                .sign_with_rng(
+                    &mut rsa::rand_core::OsRng,
+                    rsa::Pkcs1v15Sign::new::<Sha256>(),
+                    &hashed,
+                )
                 .map_err(|e| e.to_string())?;
             base64::engine::general_purpose::STANDARD.encode(sig)
         }
@@ -588,7 +610,9 @@ pub fn dkim_sign(
             } else {
                 use ed25519_dalek::pkcs8::DecodePrivateKey;
                 ed25519_dalek::SigningKey::from_pkcs8_pem(
-                    String::from_utf8(bytes.to_vec()).map_err(|e| e.to_string())?.as_str(),
+                    String::from_utf8(bytes.to_vec())
+                        .map_err(|e| e.to_string())?
+                        .as_str(),
                 )
                 .map_err(|e| format!("bad ed25519 key: {e}"))?
             };
@@ -619,7 +643,7 @@ mod tests {
             Ok(vec![format!("v=DKIM1; k=ed25519; p={pk_b64}")])
         });
         let header = dkim_sign(
-            &DkimKey::Ed25519(vec![42u8; 32].to_vec()),
+            &DkimKey::Ed25519([42u8; 32].to_vec()),
             "football.example.com",
             "sel",
             &["from", "to", "subject"],
@@ -629,7 +653,12 @@ mod tests {
         let signed = format!("{header}{}", String::from_utf8_lossy(MSG));
         let outcome = dkim_verify(&dns, signed.as_bytes()).await;
         assert_eq!(outcome.results.len(), 1);
-        assert_eq!(outcome.results[0].result, DkimStatus::Pass, "{:?}", outcome.results[0]);
+        assert_eq!(
+            outcome.results[0].result,
+            DkimStatus::Pass,
+            "{:?}",
+            outcome.results[0]
+        );
     }
 
     #[test]

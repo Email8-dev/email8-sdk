@@ -45,9 +45,7 @@ impl Vcard {
             }
             // Unfold continuations (RFC 6350 §3.2 shares iCal folding):
             // the leading WSP is dropped, one space preserved.
-            if (line.starts_with(' ') || line.starts_with('\t'))
-                && !card.properties.is_empty()
-            {
+            if (line.starts_with(' ') || line.starts_with('\t')) && !card.properties.is_empty() {
                 let cont = line.trim_start_matches([' ', '\t']);
                 if let Some(last) = card.properties.last_mut() {
                     if !cont.is_empty() {
@@ -151,7 +149,11 @@ fn parse_property(line: &str) -> Option<VcardProperty> {
             ));
         }
     }
-    Some(VcardProperty { name, value: value.to_string(), params })
+    Some(VcardProperty {
+        name,
+        value: value.to_string(),
+        params,
+    })
 }
 
 /// Build a minimal VCARD wire form (contact-card round-trip).

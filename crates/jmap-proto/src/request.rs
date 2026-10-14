@@ -139,16 +139,19 @@ pub fn resolve_references(
     Ok(())
 }
 
-fn resolve_value(
-    v: &mut Value,
-    responses: &[(String, Value, String)],
-) -> Result<(), RequestError> {
+fn resolve_value(v: &mut Value, responses: &[(String, Value, String)]) -> Result<(), RequestError> {
     if let Value::Object(ref mut map) = v {
         if let Some(Value::String(s)) = map.get("resultOf") {
             if let (Some(result_of), Some(name), Some(path)) = (
-                map.get("resultOf").and_then(|x| x.as_str()).map(|x| x.to_string()),
-                map.get("name").and_then(|x| x.as_str()).map(|x| x.to_string()),
-                map.get("path").and_then(|x| x.as_str()).map(|x| x.to_string()),
+                map.get("resultOf")
+                    .and_then(|x| x.as_str())
+                    .map(|x| x.to_string()),
+                map.get("name")
+                    .and_then(|x| x.as_str())
+                    .map(|x| x.to_string()),
+                map.get("path")
+                    .and_then(|x| x.as_str())
+                    .map(|x| x.to_string()),
             ) {
                 if !s.starts_with('#') && !result_of.is_empty() {
                     // `#`-prefixed references appear as bare values; the
@@ -157,8 +160,7 @@ fn resolve_value(
                 let found = responses
                     .iter()
                     .find(|(call_id, _, _)| *call_id == result_of)
-                    .map(|(_, resp, _)| json_pointer(resp, &name, &path))
-                    .flatten();
+                    .and_then(|(_, resp, _)| json_pointer(resp, &name, &path));
                 *v = found.ok_or(RequestError::UnresolvableReference)?;
                 return Ok(());
             }
@@ -178,7 +180,11 @@ fn resolve_value(
 fn json_pointer(resp: &Value, name: &str, path: &str) -> Option<Value> {
     // `name` is the response's data key (e.g. `list`); `path` is a slash
     // path possibly containing `*` for array expansion.
-    let root = if name.is_empty() { resp.clone() } else { resp.get(name)?.clone() };
+    let root = if name.is_empty() {
+        resp.clone()
+    } else {
+        resp.get(name)?.clone()
+    };
     let mut cur = root;
     for seg in path.trim_matches('/').split('/') {
         if seg == "*" {

@@ -46,11 +46,18 @@ pub enum Statement {
     FileInto(String),
     Redirect(String),
     Reject(String),
-    Vacation { reason: String, days: u32 },
+    Vacation {
+        reason: String,
+        days: u32,
+    },
     Keep,
     Discard,
     Stop,
-    If { test: Test, then: Vec<Statement>, els: Vec<Statement> },
+    If {
+        test: Test,
+        then: Vec<Statement>,
+        els: Vec<Statement>,
+    },
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -60,12 +67,32 @@ pub enum Test {
     Not(Box<Test>),
     AnyOf(Vec<Test>),
     AllOf(Vec<Test>),
-    Header { matcher: Matcher, comparator: Comparator, names: Vec<String>, keys: Vec<String> },
-    Address { part: AddressPart, matcher: Matcher, names: Vec<String>, keys: Vec<String> },
+    Header {
+        matcher: Matcher,
+        comparator: Comparator,
+        names: Vec<String>,
+        keys: Vec<String>,
+    },
+    Address {
+        part: AddressPart,
+        matcher: Matcher,
+        names: Vec<String>,
+        keys: Vec<String>,
+    },
     Exists(Vec<String>),
-    Size { over: Option<u64>, under: Option<u64> },
-    Body { matcher: Matcher, keys: Vec<String> },
-    Envelope { part: EnvelopePart, matcher: Matcher, keys: Vec<String> },
+    Size {
+        over: Option<u64>,
+        under: Option<u64>,
+    },
+    Body {
+        matcher: Matcher,
+        keys: Vec<String>,
+    },
+    Envelope {
+        part: EnvelopePart,
+        matcher: Matcher,
+        keys: Vec<String>,
+    },
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -134,7 +161,10 @@ pub fn compile(source: &str) -> Result<Script, CompilerError> {
             requires = req_snapshot;
         }
     }
-    Ok(Script { requires, statements })
+    Ok(Script {
+        requires,
+        statements,
+    })
 }
 
 // ── Tokenizer ─────────────────────────────────────────────────────────────
@@ -265,7 +295,10 @@ fn tokenize(source: &str) -> Result<Vec<(usize, Tok)>, Error0> {
                 out.push((line, Tok::Word(word)));
             }
             other => {
-                return Err(Error0::UnexpectedToken { line, token: other.to_string() });
+                return Err(Error0::UnexpectedToken {
+                    line,
+                    token: other.to_string(),
+                });
             }
         }
     }
@@ -295,16 +328,28 @@ impl Parser {
     fn expect_word(&mut self, what: &str) -> Result<String, Error0> {
         match self.advance() {
             Some((_, Tok::Word(w))) if !w.is_empty() => Ok(w),
-            Some((line, t)) => Err(Error0::UnexpectedToken { line, token: format!("{t:?} ({what})") }),
-            None => Err(Error0::MissingArguments { line: 0, what: what.into() }),
+            Some((line, t)) => Err(Error0::UnexpectedToken {
+                line,
+                token: format!("{t:?} ({what})"),
+            }),
+            None => Err(Error0::MissingArguments {
+                line: 0,
+                what: what.into(),
+            }),
         }
     }
 
     fn expect_quoted(&mut self, what: &str) -> Result<String, Error0> {
         match self.advance() {
             Some((_, Tok::Quoted(s))) => Ok(s),
-            Some((line, t)) => Err(Error0::UnexpectedToken { line, token: format!("{t:?} ({what})") }),
-            None => Err(Error0::MissingArguments { line: 0, what: what.into() }),
+            Some((line, t)) => Err(Error0::UnexpectedToken {
+                line,
+                token: format!("{t:?} ({what})"),
+            }),
+            None => Err(Error0::MissingArguments {
+                line: 0,
+                what: what.into(),
+            }),
         }
     }
 
@@ -314,19 +359,39 @@ impl Parser {
             Some((_, Tok::BracketOpen)) => loop {
                 match self.advance() {
                     Some((_, Tok::Quoted(s))) => out.push(s),
-                    Some((line, t)) => return Err(Error0::UnexpectedToken { line, token: format!("{t:?}") }),
+                    Some((line, t)) => {
+                        return Err(Error0::UnexpectedToken {
+                            line,
+                            token: format!("{t:?}"),
+                        })
+                    }
                     None => return Err(Error0::UnclosedBlock { line: 0 }),
                 }
                 match self.advance() {
                     Some((_, Tok::Comma)) => continue,
                     Some((_, Tok::BracketClose)) => break,
-                    Some((line, t)) => return Err(Error0::UnexpectedToken { line, token: format!("{t:?}") }),
+                    Some((line, t)) => {
+                        return Err(Error0::UnexpectedToken {
+                            line,
+                            token: format!("{t:?}"),
+                        })
+                    }
                     None => return Err(Error0::UnclosedBlock { line: 0 }),
                 }
             },
             Some((_, Tok::Quoted(s))) => out.push(s),
-            Some((line, t)) => return Err(Error0::UnexpectedToken { line, token: format!("{t:?}") }),
-            None => return Err(Error0::MissingArguments { line: 0, what: "string list".into() }),
+            Some((line, t)) => {
+                return Err(Error0::UnexpectedToken {
+                    line,
+                    token: format!("{t:?}"),
+                })
+            }
+            None => {
+                return Err(Error0::MissingArguments {
+                    line: 0,
+                    what: "string list".into(),
+                })
+            }
         }
         Ok(out)
     }
@@ -334,7 +399,9 @@ impl Parser {
     fn parse_statements(&mut self, _requires: &mut Vec<String>) -> Result<Vec<Statement>, Error0> {
         let mut out = Vec::new();
         loop {
-            let Some((line, tok)) = self.peek() else { break };
+            let Some((line, tok)) = self.peek() else {
+                break;
+            };
             match tok {
                 Tok::Word(w) => match w.as_str() {
                     "if" => {
@@ -352,9 +419,7 @@ impl Parser {
                         // If{A, then, [If{B, thenB, [C-block]}]} (RFC 5228
                         // §3.1 — an elsif belongs to the enclosing if).
                         let els = match next_word.as_deref() {
-                            Some("elsif") | Some("else") => {
-                                self.parse_if_chain_tail()?
-                            }
+                            Some("elsif") | Some("else") => self.parse_if_chain_tail()?,
                             _ => vec![],
                         };
                         out.push(Statement::If { test, then, els });
@@ -409,7 +474,10 @@ impl Parser {
                         out.push(Statement::Stop);
                     }
                     other => {
-                        return Err(Error0::UnexpectedToken { line, token: other.to_string() });
+                        return Err(Error0::UnexpectedToken {
+                            line,
+                            token: other.to_string(),
+                        });
                     }
                 },
                 Tok::Semicolon => {
@@ -424,7 +492,12 @@ impl Parser {
     fn parse_block(&mut self) -> Result<Vec<Statement>, Error0> {
         match self.advance() {
             Some((_, Tok::BraceOpen)) => {}
-            Some((line, t)) => return Err(Error0::UnexpectedToken { line, token: format!("{t:?} (block)") }),
+            Some((line, t)) => {
+                return Err(Error0::UnexpectedToken {
+                    line,
+                    token: format!("{t:?} (block)"),
+                })
+            }
             None => return Err(Error0::UnclosedBlock { line: 0 }),
         }
         let mut requires = Vec::new();
@@ -439,8 +512,14 @@ impl Parser {
     fn expect_semicolon(&mut self) -> Result<(), Error0> {
         match self.advance() {
             Some((_, Tok::Semicolon)) => Ok(()),
-            Some((line, t)) => Err(Error0::UnexpectedToken { line, token: format!("{t:?} (semicolon)") }),
-            None => Err(Error0::MissingArguments { line: 0, what: ";".into() }),
+            Some((line, t)) => Err(Error0::UnexpectedToken {
+                line,
+                token: format!("{t:?} (semicolon)"),
+            }),
+            None => Err(Error0::MissingArguments {
+                line: 0,
+                what: ";".into(),
+            }),
         }
     }
 
@@ -496,7 +575,12 @@ impl Parser {
                 }
                 let names = self.parse_string_list()?;
                 let keys = self.parse_string_list()?;
-                Ok(Test::Header { matcher, comparator, names, keys })
+                Ok(Test::Header {
+                    matcher,
+                    comparator,
+                    names,
+                    keys,
+                })
             }
             "address" => {
                 let mut part = AddressPart::All;
@@ -514,7 +598,12 @@ impl Parser {
                 }
                 let names = self.parse_string_list()?;
                 let keys = self.parse_string_list()?;
-                Ok(Test::Address { part, matcher, names, keys })
+                Ok(Test::Address {
+                    part,
+                    matcher,
+                    names,
+                    keys,
+                })
             }
             "body" => {
                 let mut matcher = Matcher::Contains;
@@ -545,9 +634,16 @@ impl Parser {
                     self.advance();
                 }
                 let keys = self.parse_string_list()?;
-                Ok(Test::Envelope { part, matcher, keys })
+                Ok(Test::Envelope {
+                    part,
+                    matcher,
+                    keys,
+                })
             }
-            other => Err(Error0::UnexpectedToken { line: 0, token: other.to_string() }),
+            other => Err(Error0::UnexpectedToken {
+                line: 0,
+                token: other.to_string(),
+            }),
         }
     }
 
@@ -560,13 +656,26 @@ impl Parser {
                     Some((_, Tok::Comma)) => continue,
                     Some((_, Tok::RParen)) => break,
                     Some((line, t)) => {
-                        return Err(Error0::UnexpectedToken { line, token: format!("{t:?}") })
+                        return Err(Error0::UnexpectedToken {
+                            line,
+                            token: format!("{t:?}"),
+                        })
                     }
                     None => return Err(Error0::UnclosedBlock { line: 0 }),
                 }
             },
-            Some((line, t)) => return Err(Error0::UnexpectedToken { line, token: format!("{t:?}") }),
-            None => return Err(Error0::MissingArguments { line: 0, what: "test list".into() }),
+            Some((line, t)) => {
+                return Err(Error0::UnexpectedToken {
+                    line,
+                    token: format!("{t:?}"),
+                })
+            }
+            None => {
+                return Err(Error0::MissingArguments {
+                    line: 0,
+                    what: "test list".into(),
+                })
+            }
         }
         Ok(out)
     }
@@ -654,7 +763,10 @@ mod tests {
         assert_eq!(
             s.statements[0],
             Statement::If {
-                test: Test::Size { over: Some(1024), under: None },
+                test: Test::Size {
+                    over: Some(1024),
+                    under: None
+                },
                 then: vec![Statement::Keep],
                 els: vec![]
             }
@@ -703,12 +815,19 @@ else { stop; }"#,
 
     #[test]
     fn tagged_args_comparator_numeric() {
-        let s = compile(
-            r#"if header :comparator "i;ascii-numeric" :is "x-priority" "1" { keep; }"#,
-        )
-        .unwrap();
+        let s =
+            compile(r#"if header :comparator "i;ascii-numeric" :is "x-priority" "1" { keep; }"#)
+                .unwrap();
         match &s.statements[0] {
-            Statement::If { test: Test::Header { comparator, matcher, .. }, .. } => {
+            Statement::If {
+                test:
+                    Test::Header {
+                        comparator,
+                        matcher,
+                        ..
+                    },
+                ..
+            } => {
                 assert_eq!(*comparator, Comparator::AsciiNumeric);
                 assert_eq!(*matcher, Matcher::Is);
             }
@@ -718,12 +837,12 @@ else { stop; }"#,
 
     #[test]
     fn address_parts_parse() {
-        let s = compile(
-            r#"if address :domain :is "from" "example.com" { keep; }"#,
-        )
-        .unwrap();
+        let s = compile(r#"if address :domain :is "from" "example.com" { keep; }"#).unwrap();
         match &s.statements[0] {
-            Statement::If { test: Test::Address { part, .. }, .. } => {
+            Statement::If {
+                test: Test::Address { part, .. },
+                ..
+            } => {
                 assert_eq!(*part, AddressPart::Domain);
             }
             other => panic!("wrong test {other:?}"),
@@ -759,7 +878,10 @@ else { stop; }"#,
         let s = compile(r#"vacation :days 999 "away";"#).unwrap();
         assert_eq!(
             s.statements[0],
-            Statement::Vacation { reason: "away".into(), days: 30 }
+            Statement::Vacation {
+                reason: "away".into(),
+                days: 30
+            }
         );
     }
 
@@ -771,7 +893,15 @@ if envelope :to :matches "*@example.net" { redirect "a@b.c"; }"#,
         )
         .unwrap();
         match &s.statements[0] {
-            Statement::If { test: Test::Envelope { part, matcher, keys }, .. } => {
+            Statement::If {
+                test:
+                    Test::Envelope {
+                        part,
+                        matcher,
+                        keys,
+                    },
+                ..
+            } => {
                 assert_eq!(*part, EnvelopePart::To);
                 assert_eq!(*matcher, Matcher::Matches);
                 assert_eq!(keys, &vec!["*@example.net".to_string()]);

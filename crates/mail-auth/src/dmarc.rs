@@ -215,7 +215,12 @@ mod tests {
             identity: None,
             result: DkimStatus::Pass,
         }];
-        let r = dmarc_evaluate(policy(DmarcDisposition::Reject), "example.com", &SpfResult::Fail("x".into()), &dkim);
+        let r = dmarc_evaluate(
+            policy(DmarcDisposition::Reject),
+            "example.com",
+            &SpfResult::Fail("x".into()),
+            &dkim,
+        );
         assert!(r.passes());
         assert_eq!(r.disposition, DmarcDisposition::None);
         assert!(r.reportable());
@@ -229,7 +234,12 @@ mod tests {
             identity: None,
             result: DkimStatus::Pass,
         }];
-        let r = dmarc_evaluate(policy(DmarcDisposition::Quarantine), "example.com", &SpfResult::None, &dkim);
+        let r = dmarc_evaluate(
+            policy(DmarcDisposition::Quarantine),
+            "example.com",
+            &SpfResult::None,
+            &dkim,
+        );
         assert!(r.passes());
     }
 

@@ -96,7 +96,7 @@ async fn spf_check_domain(
             .unwrap(),
         _ => return SpfResult::PermError("multiple SPF records".into()),
     };
-    let terms = record.trim().split_whitespace().skip(1);
+    let terms = record.split_whitespace().skip(1);
     let mut redirect: Option<String> = None;
     for term in terms {
         if term.is_empty() {
@@ -123,7 +123,10 @@ async fn spf_check_domain(
         };
         let (name, arg) = match rest.split_once(':') {
             Some((n, a)) => (n, Some(a)),
-            None => rest.split_once('/').map(|(n, _)| (n, None)).unwrap_or((rest, None)),
+            None => rest
+                .split_once('/')
+                .map(|(n, _)| (n, None))
+                .unwrap_or((rest, None)),
         };
         let matched = mech_match(dns, params, domain, name, arg).await;
         match matched {
@@ -160,7 +163,9 @@ async fn mech_match(
     match name.to_ascii_lowercase().as_str() {
         "all" => MechOutcome::Match,
         "ip4" => {
-            let Some(spec) = arg else { return MechOutcome::PermError("ip4 needs a network".into()) };
+            let Some(spec) = arg else {
+                return MechOutcome::PermError("ip4 needs a network".into());
+            };
             if ip_in_cidr4(params.client_ip, spec) {
                 MechOutcome::Match
             } else {
@@ -168,7 +173,9 @@ async fn mech_match(
             }
         }
         "ip6" => {
-            let Some(spec) = arg else { return MechOutcome::PermError("ip6 needs a network".into()) };
+            let Some(spec) = arg else {
+                return MechOutcome::PermError("ip6 needs a network".into());
+            };
             if ip_in_cidr6(params.client_ip, spec) {
                 MechOutcome::Match
             } else {
@@ -177,7 +184,9 @@ async fn mech_match(
         }
         "a" => {
             // a[:domain][/cidr] — the domain's A (v4) or AAAA (v6) records.
-            let target = arg.map(|a| a.split('/').next().unwrap_or(a)).unwrap_or(domain);
+            let target = arg
+                .map(|a| a.split('/').next().unwrap_or(a))
+                .unwrap_or(domain);
             if a_record_matches(dns, params, target).await {
                 MechOutcome::Match
             } else {
@@ -189,7 +198,9 @@ async fn mech_match(
             // lookups arrive as TXT rows shaped "10 mail.example.com"
             // from the resolver impl; treat TXT as a stand-in — the
             // production resolver translates MX queries to this shape.
-            let target = arg.map(|a| a.split('/').next().unwrap_or(a)).unwrap_or(domain);
+            let target = arg
+                .map(|a| a.split('/').next().unwrap_or(a))
+                .unwrap_or(domain);
             let mxs = match dns.lookup_txt(&format!("_mx.{target}")).await {
                 Ok(v) => v,
                 Err(_) => return MechOutcome::NoMatch,
@@ -203,20 +214,26 @@ async fn mech_match(
             MechOutcome::NoMatch
         }
         "include" => {
-            let Some(target) = arg else { return MechOutcome::PermError("include needs a domain".into()) };
+            let Some(target) = arg else {
+                return MechOutcome::PermError("include needs a domain".into());
+            };
             // Recurse via a boxed future (async fn → async fn chains that
             // recurse need the indirection).
             let inner = Box::pin(spf_check_domain(dns, params, target, 0));
             match inner.await {
                 SpfResult::Pass => MechOutcome::Match,
-                SpfResult::Fail(_) | SpfResult::SoftFail | SpfResult::Neutral => MechOutcome::NoMatch,
+                SpfResult::Fail(_) | SpfResult::SoftFail | SpfResult::Neutral => {
+                    MechOutcome::NoMatch
+                }
                 SpfResult::TempError(e) => MechOutcome::TempError(e),
                 SpfResult::PermError(e) => MechOutcome::PermError(e),
                 SpfResult::None => MechOutcome::PermError("include target has no SPF".into()),
             }
         }
         "exists" => {
-            let Some(target) = arg else { return MechOutcome::PermError("exists needs a domain".into()) };
+            let Some(target) = arg else {
+                return MechOutcome::PermError("exists needs a domain".into());
+            };
             let expanded = macros(target, params, domain);
             match dns.lookup_txt(&format!("_exists.{expanded}")).await {
                 Ok(v) if !v.is_empty() => MechOutcome::Match,
@@ -250,7 +267,9 @@ fn ip_in_cidr4(ip: IpAddr, spec: &str) -> bool {
         Some((b, p)) => (b, p.parse::<u8>().unwrap_or(32)),
         None => (spec, 32u8),
     };
-    let Ok(net) = base.parse::<std::net::Ipv4Addr>() else { return false };
+    let Ok(net) = base.parse::<std::net::Ipv4Addr>() else {
+        return false;
+    };
     let bits = 32u32.saturating_sub(prefix as u32);
     let mask = if bits == 32 { 0 } else { u32::MAX << bits };
     (u32::from(v4) & mask) == (u32::from(net) & mask)
@@ -262,7 +281,9 @@ fn ip_in_cidr6(ip: IpAddr, spec: &str) -> bool {
         Some((b, p)) => (b, p.parse::<u8>().unwrap_or(128)),
         None => (spec, 128u8),
     };
-    let Ok(net) = base.parse::<std::net::Ipv6Addr>() else { return false };
+    let Ok(net) = base.parse::<std::net::Ipv6Addr>() else {
+        return false;
+    };
     let bits = 128u128.saturating_sub(prefix as u128);
     let mask = if bits == 128 { 0 } else { u128::MAX << bits };
     (u128::from(v6) & mask) == (u128::from(net) & mask)
@@ -274,7 +295,9 @@ async fn a_record_matches(dns: &dyn DnsTxt, params: &SpfParams, host: &str) -> b
         Ok(v) => v,
         Err(_) => return false,
     };
-    records.iter().any(|r| r.trim().parse::<IpAddr>().ok() == Some(params.client_ip))
+    records
+        .iter()
+        .any(|r| r.trim().parse::<IpAddr>().ok() == Some(params.client_ip))
 }
 
 /// Macro expansion: %{s} sender, %{l} local, %{o} sender domain, %{d}
@@ -294,10 +317,7 @@ fn macros(pattern: &str, params: &SpfParams, domain: &str) -> String {
             Some('_') => out.push(' '),
             Some('-') => out.push_str("%20"),
             Some('{') => {
-                let inner: String = chars
-                    .by_ref()
-                    .take_while(|c| *c != '}')
-                    .collect::<String>();
+                let inner: String = chars.by_ref().take_while(|c| *c != '}').collect::<String>();
                 let mut rev = false;
                 let mut delims = String::from(".");
                 let mut digits = String::new();
@@ -363,7 +383,7 @@ fn macros(pattern: &str, params: &SpfParams, domain: &str) -> String {
 mod tests {
     use super::*;
     use crate::FnDnsTxt;
-    use std::net::{Ipv4Addr, IpAddr};
+    use std::net::{IpAddr, Ipv4Addr};
 
     #[tokio::test]
     async fn spf_ip4_pass() {

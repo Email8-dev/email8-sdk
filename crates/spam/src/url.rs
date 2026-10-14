@@ -28,20 +28,23 @@ pub fn scan_urls(text: &str) -> UrlFindings {
     let mut urls = Vec::new();
     let mut ip_literal = false;
     for token in text.split_whitespace() {
-        let token = token
-            .trim_matches(|c: char| c == '<' || c == '>' || c == '"' || c == '\'' || c == ')' || c == '(');
-        if let Some(rest) = token.strip_prefix("http://").or_else(|| token.strip_prefix("https://")) {
+        let token = token.trim_matches(|c: char| {
+            c == '<' || c == '>' || c == '"' || c == '\'' || c == ')' || c == '('
+        });
+        if let Some(rest) = token
+            .strip_prefix("http://")
+            .or_else(|| token.strip_prefix("https://"))
+        {
             // Stop at the first character that can't be in a URL.
             let end = rest
                 .find(|c: char| c.is_whitespace() || c == '"' || c == '<' || c == '>')
                 .unwrap_or(rest.len());
             let scheme_len = token.len() - rest.len();
             let url = format!("{}{}", &token[..scheme_len], &rest[..end]);
-            let scheme_trimmed = url.trim_start_matches("http://").trim_start_matches("https://");
-            let host = scheme_trimmed
-                .split(['/', ':'])
-                .next()
-                .unwrap_or("");
+            let scheme_trimmed = url
+                .trim_start_matches("http://")
+                .trim_start_matches("https://");
+            let host = scheme_trimmed.split(['/', ':']).next().unwrap_or("");
             if host.parse::<std::net::IpAddr>().is_ok() {
                 ip_literal = true;
             }
@@ -59,9 +62,7 @@ pub fn scan_urls(text: &str) -> UrlFindings {
     });
     let mut mixed_script = false;
     let mut homograph = false;
-    for label in text
-        .split(|c: char| !(c.is_alphanumeric() || c == '-' || c == '.'))
-    {
+    for label in text.split(|c: char| !(c.is_alphanumeric() || c == '-' || c == '.')) {
         let has_ascii = label.chars().any(|c| c.is_ascii_alphanumeric());
         let has_non_ascii = label.chars().any(|c| !c.is_ascii() && c.is_alphanumeric());
         if has_ascii && has_non_ascii {
@@ -91,10 +92,15 @@ pub fn scan_urls(text: &str) -> UrlFindings {
 /// when it's a well-formed absolute URL.
 fn unroll_redirector(url: &str) -> String {
     const REDIRECTORS: &[&str] = &[
-        "click.example.net", "r.example.com", "go.example.org",
-        "redirect.example.com", "track.example.net",
+        "click.example.net",
+        "r.example.com",
+        "go.example.org",
+        "redirect.example.com",
+        "track.example.net",
     ];
-    let Some(scheme_end) = url.find("://") else { return url.to_string() };
+    let Some(scheme_end) = url.find("://") else {
+        return url.to_string();
+    };
     let host = url[scheme_end + 3..]
         .split(['/', ':', '?'])
         .next()
@@ -165,6 +171,12 @@ mod tests {
     #[test]
     fn redirector_unrolls() {
         let f = scan_urls("https://r.example.com?url=https%3A%2F%2Fevil.example.net%2Fx");
-        assert!(f.urls.iter().any(|u| u.starts_with("https://evil.example.net")), "{:?}", f.urls);
+        assert!(
+            f.urls
+                .iter()
+                .any(|u| u.starts_with("https://evil.example.net")),
+            "{:?}",
+            f.urls
+        );
     }
 }

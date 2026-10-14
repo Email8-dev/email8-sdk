@@ -60,11 +60,19 @@ pub fn parse(raw: &str) -> IcalComponent {
             .and_then(|l| l.split_once(':'))
             .map(|(_, k)| k.trim().to_ascii_uppercase())
             .unwrap_or_default();
-        let mut comp = IcalComponent { kind, properties: Vec::new(), children: Vec::new() };
+        let mut comp = IcalComponent {
+            kind,
+            properties: Vec::new(),
+            children: Vec::new(),
+        };
         let mut i = 1;
         while i < lines.len() {
             let line = &lines[i];
-            let name = line.split([':', ';']).next().unwrap_or_default().to_ascii_uppercase();
+            let name = line
+                .split([':', ';'])
+                .next()
+                .unwrap_or_default()
+                .to_ascii_uppercase();
             if name == "BEGIN" {
                 let start = i;
                 // Find the matching END at depth 0.
@@ -153,7 +161,11 @@ fn parse_property(line: &str) -> Option<IcalProperty> {
             params.push((k.trim().to_string(), v.trim().trim_matches('"').to_string()));
         }
     }
-    Some(IcalProperty { name, value: value.to_string(), params })
+    Some(IcalProperty {
+        name,
+        value: value.to_string(),
+        params,
+    })
 }
 
 impl IcalComponent {
@@ -191,7 +203,11 @@ impl IcalTime {
     pub fn parse(v: &str) -> Option<Self> {
         let v = v.trim();
         if v.len() == 8 && v.chars().all(|c| c.is_ascii_digit()) {
-            let (y, m, d) = (v[0..4].parse().ok()?, v[4..6].parse().ok()?, v[6..8].parse().ok()?);
+            let (y, m, d) = (
+                v[0..4].parse().ok()?,
+                v[4..6].parse().ok()?,
+                v[6..8].parse().ok()?,
+            );
             return NaiveDate::from_ymd_opt(y, m, d).map(Self::Date);
         }
         // DATE-TIME: YYYYMMDDTHHMMSS[Z]
@@ -215,9 +231,7 @@ impl IcalTime {
 
     pub fn to_utc(&self) -> DateTime<Utc> {
         match self {
-            Self::Date(d) => Utc.from_utc_datetime(
-                &d.and_hms_opt(0, 0, 0).unwrap_or_default(),
-            ),
+            Self::Date(d) => Utc.from_utc_datetime(&d.and_hms_opt(0, 0, 0).unwrap_or_default()),
             Self::DateTime(dt) => *dt,
         }
     }
@@ -229,8 +243,8 @@ impl IcalTime {
 /// One RRULE (the subset the worker expands).
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct RRule {
-    pub freq: String,      // DAILY | WEEKLY | MONTHLY | YEARLY (HOURLY/MINUTELY/SECONDLY supported)
-    pub interval: u32,     // default 1
+    pub freq: String, // DAILY | WEEKLY | MONTHLY | YEARLY (HOURLY/MINUTELY/SECONDLY supported)
+    pub interval: u32, // default 1
     pub count: Option<u32>,
     pub until: Option<IcalTime>,
     /// BYDAY codes for WEEKLY (MO..SU); multi-letter prefixes parsed but
@@ -260,9 +274,12 @@ impl RRule {
                 "BYDAY" => {
                     r.byday = val
                         .split(',')
-                        .map(|d| d.trim().trim_start_matches(['+', '-'])
-                            .trim_start_matches(|c: char| c.is_ascii_digit())
-                            .to_ascii_uppercase())
+                        .map(|d| {
+                            d.trim()
+                                .trim_start_matches(['+', '-'])
+                                .trim_start_matches(|c: char| c.is_ascii_digit())
+                                .to_ascii_uppercase()
+                        })
                         .collect();
                 }
                 _ => {} // WKST/BYMONTH/etc. — P2
@@ -285,7 +302,7 @@ impl RRule {
             "DAILY" => Duration::days(self.interval as i64),
             "WEEKLY" => Duration::weeks(self.interval as i64),
             "MONTHLY" => Duration::days(30 * self.interval as i64), // approximation
-            "YEARLY" => Duration::days(365 * self.interval as i64),  // approximation
+            "YEARLY" => Duration::days(365 * self.interval as i64), // approximation
             _ => return vec![dtstart],
         };
         // WEEKLY + BYDAY: emit each listed weekday per interval week.
@@ -305,20 +322,16 @@ impl RRule {
                 })
                 .collect();
             if !weekdays.is_empty() {
-                let mut week_start = dtstart.date_naive() - Duration::days(
-                    dtstart.weekday().num_days_from_monday() as i64,
-                );
+                let mut week_start = dtstart.date_naive()
+                    - Duration::days(dtstart.weekday().num_days_from_monday() as i64);
                 loop {
                     for wd in &weekdays {
-                        let day = week_start
-                            + Duration::days(wd.num_days_from_monday() as i64);
+                        let day = week_start + Duration::days(wd.num_days_from_monday() as i64);
                         let occurrence = day
                             .and_hms_opt(dtstart.hour(), dtstart.minute(), dtstart.second())
                             .map(|t| chrono::Utc.from_utc_datetime(&t))
                             .unwrap_or_default();
-                        if occurrence >= dtstart
-                            && self.within_bounds(&occurrence, out.len())
-                        {
+                        if occurrence >= dtstart && self.within_bounds(&occurrence, out.len()) {
                             out.push(occurrence);
                             if out.len() >= limit {
                                 return out;
@@ -470,7 +483,10 @@ mod tests {
     fn unfolds_folded_lines() {
         let raw = "SUMMARY:This is a very long line\r\n that was folded here\r\n";
         let lines = unfold(raw);
-        assert_eq!(lines, vec!["SUMMARY:This is a very long line that was folded here"]);
+        assert_eq!(
+            lines,
+            vec!["SUMMARY:This is a very long line that was folded here"]
+        );
     }
 
     #[test]
@@ -513,13 +529,15 @@ mod tests {
         let raw = "BEGIN:VCALENDAR\r\nBEGIN:VEVENT\r\nDTSTART:20260901T100000Z\r\n\
              RRULE:FREQ=DAILY;COUNT=3\r\nEXDATE:20260902T100000Z\r\nEND:VEVENT\r\nEND:VCALENDAR\r\n";
         let cal = parse(raw);
-        let occ = expand_event(&cal.children_of("VEVENT")[0], 100);
+        let occ = expand_event(cal.children_of("VEVENT")[0], 100);
         assert_eq!(occ.len(), 2); // 3 minus the excluded day
     }
 
     #[test]
     fn synthetic_uid_stable() {
-        let cal = parse("BEGIN:VEVENT\r\nDTSTART:20260901T100000Z\r\nSUMMARY:Weekly sync\r\nEND:VEVENT\r\n");
+        let cal = parse(
+            "BEGIN:VEVENT\r\nDTSTART:20260901T100000Z\r\nSUMMARY:Weekly sync\r\nEND:VEVENT\r\n",
+        );
         let e = &cal;
         let a = synthetic_uid(e);
         let b = synthetic_uid(e);
@@ -529,8 +547,20 @@ mod tests {
 
     #[test]
     fn invitation_builds_valid_wire_form() {
-        let s = NaiveDate::from_ymd_opt(2026, 9, 1).unwrap().and_hms_opt(10, 0, 0).map(|t| chrono::Utc.from_utc_datetime(&t)).unwrap();
-        let body = build_invitation("u1", "Review", s, s + Duration::hours(1), "a@x.io", "b@y.io", "REQUEST");
+        let s = NaiveDate::from_ymd_opt(2026, 9, 1)
+            .unwrap()
+            .and_hms_opt(10, 0, 0)
+            .map(|t| chrono::Utc.from_utc_datetime(&t))
+            .unwrap();
+        let body = build_invitation(
+            "u1",
+            "Review",
+            s,
+            s + Duration::hours(1),
+            "a@x.io",
+            "b@y.io",
+            "REQUEST",
+        );
         assert!(body.starts_with("BEGIN:VCALENDAR"));
         assert!(body.contains("METHOD:REQUEST"));
         assert!(body.ends_with("END:VCALENDAR\r\n"));

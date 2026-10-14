@@ -18,7 +18,9 @@ pub mod spf;
 
 pub use arc::{arc_seal, arc_verify, extract_chain, ArcChainResult, ArcSet};
 pub use auth_results::{build_results, received_spf, AuthResult, AuthenticationResults};
-pub use dkim::{dkim_sign, dkim_verify, DkimKey, DkimSignature, DkimStatus, DkimVerifyOutcome, SingleDkim};
+pub use dkim::{
+    dkim_sign, dkim_verify, DkimKey, DkimSignature, DkimStatus, DkimVerifyOutcome, SingleDkim,
+};
 pub use dmarc::{dmarc_evaluate, dmarc_lookup, DmarcDisposition, DmarcPolicy, DmarcResult};
 pub use spf::{spf_check, spf_domain_owner, SpfParams, SpfResult};
 

@@ -276,9 +276,13 @@ pub async fn pyzor_check(server: &str, digest: &str) -> Result<PyzorReport, Stri
         "Op": "check",
         "OP-Digest": digest,
     });
-    let sock = tokio::net::UdpSocket::bind("0.0.0.0:0").await.map_err(|e| e.to_string())?;
+    let sock = tokio::net::UdpSocket::bind("0.0.0.0:0")
+        .await
+        .map_err(|e| e.to_string())?;
     sock.connect(server).await.map_err(|e| e.to_string())?;
-    sock.send(req.to_string().as_bytes()).await.map_err(|e| e.to_string())?;
+    sock.send(req.to_string().as_bytes())
+        .await
+        .map_err(|e| e.to_string())?;
     let mut buf = vec![0u8; 4096];
     let n = tokio::time::timeout(std::time::Duration::from_secs(5), sock.recv(&mut buf))
         .await
@@ -296,14 +300,13 @@ pub async fn pyzor_check(server: &str, digest: &str) -> Result<PyzorReport, Stri
 pub fn zones_from_config(rows: &[(String, String, u32)]) -> Vec<DnsblZone> {
     rows.iter()
         .filter_map(|(zone, scopes, cap)| {
-            let scopes: Vec<DnsblScope> =
-                scopes.split(',').filter_map(DnsblScope::parse).collect();
+            let scopes: Vec<DnsblScope> = scopes.split(',').filter_map(DnsblScope::parse).collect();
             if scopes.is_empty() {
                 return None;
             }
             Some(DnsblZone {
                 zone: zone.clone(),
-                trust_url: scopes.iter().any(|s| *s == DnsblScope::Url),
+                trust_url: scopes.contains(&DnsblScope::Url),
                 scopes,
                 max_checks_per_message: *cap,
             })
@@ -353,12 +356,14 @@ mod tests {
             trust_url: true,
         };
         assert_eq!(
-            z.query_name("spam.example.com", DnsblScope::Domain).unwrap(),
+            z.query_name("spam.example.com", DnsblScope::Domain)
+                .unwrap(),
             "spam.example.com.multi.surbl.org"
         );
         // Email scope hashes on the domain part.
         assert_eq!(
-            z.query_name("user@spam.example.com", DnsblScope::Email).unwrap(),
+            z.query_name("user@spam.example.com", DnsblScope::Email)
+                .unwrap(),
             "spam.example.com.multi.surbl.org"
         );
     }

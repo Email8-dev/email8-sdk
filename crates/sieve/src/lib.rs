@@ -65,7 +65,10 @@ keep;"#,
         )
         .unwrap();
         let actions = run(&script, &mail()).unwrap();
-        assert_eq!(actions, vec![Action::FileInto("Lists".into()), Action::Stop]);
+        assert_eq!(
+            actions,
+            vec![Action::FileInto("Lists".into()), Action::Stop]
+        );
     }
 
     #[test]
@@ -77,7 +80,10 @@ keep;"#,
         )
         .unwrap();
         let actions = run(&script, &mail()).unwrap();
-        assert_eq!(actions, vec![Action::Reject("No spam please".into()), Action::Stop]);
+        assert_eq!(
+            actions,
+            vec![Action::Reject("No spam please".into()), Action::Stop]
+        );
     }
 
     #[test]

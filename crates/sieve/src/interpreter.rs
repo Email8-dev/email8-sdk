@@ -45,7 +45,11 @@ impl std::error::Error for InterpreterError {}
 /// unless the script explicitly handles the message (fileinto/redirect/
 /// discard/reject/stop/keep appear in the output).
 pub fn run(script: &Script, mail: &Mail) -> Result<Vec<Action>, InterpreterError> {
-    let mut ctx = Run { mail, actions: Vec::new(), stopped: false };
+    let mut ctx = Run {
+        mail,
+        actions: Vec::new(),
+        stopped: false,
+    };
     ctx.statements(&script.statements)?;
     // RFC 5228 §2.7.3.1: implicit keep unless any fileinto/redirect/
     // discard/reject/keep/vacation handled it or stop was hit.
@@ -88,7 +92,10 @@ impl<'a> Run<'a> {
                     self.stopped = true;
                 }
                 Statement::Vacation { reason, days } => {
-                    self.actions.push(Action::Vacation { reason: reason.clone(), days: *days });
+                    self.actions.push(Action::Vacation {
+                        reason: reason.clone(),
+                        days: *days,
+                    });
                 }
                 Statement::Keep => self.actions.push(Action::Keep),
                 Statement::Discard => self.actions.push(Action::Discard),
@@ -139,7 +146,12 @@ impl<'a> Run<'a> {
                 over.map(|o| self.mail.size > o).unwrap_or(true)
                     && under.map(|u| self.mail.size < u).unwrap_or(true)
             }
-            Test::Header { matcher, comparator, names, keys } => {
+            Test::Header {
+                matcher,
+                comparator,
+                names,
+                keys,
+            } => {
                 let mut hit = false;
                 'outer: for key in keys {
                     for name in names {
@@ -156,7 +168,12 @@ impl<'a> Run<'a> {
                 }
                 hit
             }
-            Test::Address { part, matcher, names, keys } => {
+            Test::Address {
+                part,
+                matcher,
+                names,
+                keys,
+            } => {
                 // Address test reuses the header values but only the
                 // addr-spec part(s).
                 let mut hit = false;
@@ -168,8 +185,12 @@ impl<'a> Run<'a> {
                             }
                             let addr = extract_addr_spec(hv);
                             let candidate = match part {
-                                AddressPart::Local => addr.split('@').next().unwrap_or("").to_string(),
-                                AddressPart::Domain => addr.rsplit('@').next().unwrap_or("").to_string(),
+                                AddressPart::Local => {
+                                    addr.split('@').next().unwrap_or("").to_string()
+                                }
+                                AddressPart::Domain => {
+                                    addr.rsplit('@').next().unwrap_or("").to_string()
+                                }
                                 AddressPart::All => addr,
                             };
                             if value_matches(*matcher, Comparator::AsciiCaseMap, &candidate, key) {
@@ -189,13 +210,19 @@ impl<'a> Run<'a> {
                     Matcher::Matches => glob_match(k, &text),
                 })
             }
-            Test::Envelope { part, matcher, keys } => {
+            Test::Envelope {
+                part,
+                matcher,
+                keys,
+            } => {
                 let candidate = match part {
                     EnvelopePart::From => self.mail.from.clone(),
                     EnvelopePart::To => self.mail.to.first().cloned().unwrap_or_default(),
                 };
                 keys.iter().any(|k| match matcher {
-                    Matcher::Contains => candidate.to_ascii_lowercase().contains(&k.to_ascii_lowercase()),
+                    Matcher::Contains => candidate
+                        .to_ascii_lowercase()
+                        .contains(&k.to_ascii_lowercase()),
                     Matcher::Is => candidate.eq_ignore_ascii_case(k),
                     Matcher::Matches => glob_match(k, &candidate),
                 })
@@ -223,7 +250,9 @@ fn value_matches(matcher: Matcher, comparator: Comparator, value: &str, key: &st
                 vn == kn
             }
         },
-        Matcher::Contains => value.to_ascii_lowercase().contains(&key.to_ascii_lowercase()),
+        Matcher::Contains => value
+            .to_ascii_lowercase()
+            .contains(&key.to_ascii_lowercase()),
         // RFC 5228 §2.7.1 — `*` and `?` glob over the whole value.
         Matcher::Matches => glob_match(key, value),
     }
@@ -284,7 +313,10 @@ mod tests {
         let s = script(
             r#"if anyof (header :is "subject" "nope", header :contains "subject" "[list]") { fileinto "A"; }"#,
         );
-        assert_eq!(run(&s, &mail()).unwrap(), vec![Action::FileInto("A".into())]);
+        assert_eq!(
+            run(&s, &mail()).unwrap(),
+            vec![Action::FileInto("A".into())]
+        );
 
         let s = script(
             r#"if allof (header :is "subject" "nope", header :contains "subject" "[list]") { fileinto "A"; }"#,
@@ -314,7 +346,10 @@ mod tests {
     #[test]
     fn header_matches_glob() {
         let s = script(r#"if header :matches "subject" "[*] Hell?" { fileinto "A"; }"#);
-        assert_eq!(run(&s, &mail()).unwrap(), vec![Action::FileInto("A".into())]);
+        assert_eq!(
+            run(&s, &mail()).unwrap(),
+            vec![Action::FileInto("A".into())]
+        );
     }
 
     #[test]
@@ -338,16 +373,18 @@ if header :comparator "i;ascii-numeric" :is "x-priority" "1" { discard; }"#,
 
     #[test]
     fn address_localpart_and_domain_extraction() {
-        let s = script(
-            r#"if address :localpart :is "from" "alice" { fileinto "Local"; }"#,
+        let s = script(r#"if address :localpart :is "from" "alice" { fileinto "Local"; }"#);
+        assert_eq!(
+            run(&s, &mail()).unwrap(),
+            vec![Action::FileInto("Local".into())]
         );
-        assert_eq!(run(&s, &mail()).unwrap(), vec![Action::FileInto("Local".into())]);
 
-        let s = script(
-            r#"if address :domain :is "from" "example.com" { fileinto "Dom"; }"#,
-        );
+        let s = script(r#"if address :domain :is "from" "example.com" { fileinto "Dom"; }"#);
         // Display-name + <> form is unwrapped to the addr-spec.
-        assert_eq!(run(&s, &mail()).unwrap(), vec![Action::FileInto("Dom".into())]);
+        assert_eq!(
+            run(&s, &mail()).unwrap(),
+            vec![Action::FileInto("Dom".into())]
+        );
     }
 
     // ── Body / envelope / size ────────────────────────────────────────
@@ -355,7 +392,10 @@ if header :comparator "i;ascii-numeric" :is "x-priority" "1" { discard; }"#,
     #[test]
     fn body_contains_case_insensitive() {
         let s = script(r#"if body :contains "WIDGETS" { reject "no"; }"#);
-        assert_eq!(run(&s, &mail()).unwrap(), vec![Action::Reject("no".into()), Action::Stop]);
+        assert_eq!(
+            run(&s, &mail()).unwrap(),
+            vec![Action::Reject("no".into()), Action::Stop]
+        );
     }
 
     #[test]
@@ -364,12 +404,18 @@ if header :comparator "i;ascii-numeric" :is "x-priority" "1" { discard; }"#,
             r#"require ["envelope"];
 if envelope :to :matches "*@example.net" { redirect "x@y.z"; }"#,
         );
-        assert_eq!(run(&s, &mail()).unwrap(), vec![Action::Redirect("x@y.z".into())]);
+        assert_eq!(
+            run(&s, &mail()).unwrap(),
+            vec![Action::Redirect("x@y.z".into())]
+        );
     }
 
     #[test]
     fn size_under_matches() {
-        let m = Mail { size: 100, ..mail() };
+        let m = Mail {
+            size: 100,
+            ..mail()
+        };
         let s = script(r#"if size :under 200 { discard; }"#);
         assert_eq!(run(&s, &m).unwrap(), vec![Action::Discard]);
 
@@ -385,7 +431,10 @@ if envelope :to :matches "*@example.net" { redirect "x@y.z"; }"#,
         assert_eq!(run(&s, &mail()).unwrap(), vec![Action::Keep]);
 
         let s = script(r#"fileinto "A";"#);
-        assert_eq!(run(&s, &mail()).unwrap(), vec![Action::FileInto("A".into())]);
+        assert_eq!(
+            run(&s, &mail()).unwrap(),
+            vec![Action::FileInto("A".into())]
+        );
 
         // discard handles the message (no implicit keep).
         let s = script("discard;");
@@ -394,7 +443,10 @@ if envelope :to :matches "*@example.net" { redirect "x@y.z"; }"#,
         let s = script(r#"vacation :days 2 "off";"#);
         assert_eq!(
             run(&s, &mail()).unwrap(),
-            vec![Action::Vacation { reason: "off".into(), days: 2 }]
+            vec![Action::Vacation {
+                reason: "off".into(),
+                days: 2
+            }]
         );
     }
 
@@ -407,15 +459,19 @@ if envelope :to :matches "*@example.net" { redirect "x@y.z"; }"#,
     #[test]
     fn reject_implies_stop() {
         let s = script(r#"reject "no"; keep;"#);
-        assert_eq!(run(&s, &mail()).unwrap(), vec![Action::Reject("no".into()), Action::Stop]);
+        assert_eq!(
+            run(&s, &mail()).unwrap(),
+            vec![Action::Reject("no".into()), Action::Stop]
+        );
     }
 
     #[test]
     fn else_branch_taken_when_if_false() {
-        let s = script(
-            r#"if false { fileinto "A"; } else { fileinto "B"; }"#,
+        let s = script(r#"if false { fileinto "A"; } else { fileinto "B"; }"#);
+        assert_eq!(
+            run(&s, &mail()).unwrap(),
+            vec![Action::FileInto("B".into())]
         );
-        assert_eq!(run(&s, &mail()).unwrap(), vec![Action::FileInto("B".into())]);
     }
 
     #[test]
@@ -428,9 +484,7 @@ if envelope :to :matches "*@example.net" { redirect "x@y.z"; }"#,
 
     #[test]
     fn address_part_matches_with_contains() {
-        let s = script(
-            r#"if address :domain :contains "to" "EXAMPLE" { keep; }"#,
-        );
+        let s = script(r#"if address :domain :contains "to" "EXAMPLE" { keep; }"#);
         // Address tests always use ascii-casemap.
         assert_eq!(run(&s, &mail()).unwrap(), vec![Action::Keep]);
     }

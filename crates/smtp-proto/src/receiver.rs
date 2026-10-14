@@ -38,7 +38,11 @@ pub enum Element {
 
 impl Receiver {
     pub fn new() -> Self {
-        Self { buffer: Vec::with_capacity(1024), pending_chunk: None, data_mode: false }
+        Self {
+            buffer: Vec::with_capacity(1024),
+            pending_chunk: None,
+            data_mode: false,
+        }
     }
 
     /// Enter plain-DATA mode — called by the session right after it
@@ -96,9 +100,15 @@ impl Receiver {
                     }
                 }
                 if !body.is_empty() {
-                    out.push(Element::DataChunk { data: body, last: terminated });
+                    out.push(Element::DataChunk {
+                        data: body,
+                        last: terminated,
+                    });
                 } else if terminated {
-                    out.push(Element::DataChunk { data: Vec::new(), last: true });
+                    out.push(Element::DataChunk {
+                        data: Vec::new(),
+                        last: true,
+                    });
                 }
                 if terminated {
                     continue;
@@ -172,7 +182,13 @@ mod tests {
         let mut r = Receiver::new();
         let els = r.parse(b"BDAT 5 LAST\r\nhello");
         assert_eq!(els.len(), 2);
-        assert!(matches!(els[0], Element::Command(Command::Bdat { size: 5, last: true })));
+        assert!(matches!(
+            els[0],
+            Element::Command(Command::Bdat {
+                size: 5,
+                last: true
+            })
+        ));
         assert!(matches!(&els[1], Element::DataChunk { data, last: true } if data == b"hello"));
     }
 
@@ -181,12 +197,20 @@ mod tests {
         let mut r = Receiver::new();
         let els = r.parse(b"BDAT 10\r\nabc");
         assert_eq!(els.len(), 1);
-        assert!(matches!(els[0], Element::Command(Command::Bdat { size: 10, last: false })));
+        assert!(matches!(
+            els[0],
+            Element::Command(Command::Bdat {
+                size: 10,
+                last: false
+            })
+        ));
         // Feed the remaining 7 chunk bytes plus a trailing command line:
         // the 10-byte chunk drains, then "NOOP" parses normally.
         let els = r.parse(b"defghijNOOP\r\nklm");
         assert_eq!(els.len(), 2);
-        assert!(matches!(&els[0], Element::DataChunk { data, last: false } if data == b"abcdefghij"));
+        assert!(
+            matches!(&els[0], Element::DataChunk { data, last: false } if data == b"abcdefghij")
+        );
         assert!(matches!(els[1], Element::Command(Command::Noop)));
         // "klm" (no CRLF yet) stays buffered — completing it yields Invalid.
         let els = r.parse(b"\r\n");

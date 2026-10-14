@@ -20,13 +20,22 @@ pub enum Command {
     /// `STARTTLS`
     StartTls,
     /// `AUTH mechanism [initial-response]`
-    Auth { mechanism: String, initial: Option<String> },
+    Auth {
+        mechanism: String,
+        initial: Option<String>,
+    },
     /// SASL continuation line (raw base64, possibly `*` cancel).
     Sasl { token: String },
     /// `MAIL FROM:<addr> [params]`
-    MailFrom { address: Option<String>, params: Vec<(String, Option<String>)> },
+    MailFrom {
+        address: Option<String>,
+        params: Vec<(String, Option<String>)>,
+    },
     /// `RCPT TO:<addr> [params]`
-    RcptTo { address: String, params: Vec<(String, Option<String>)> },
+    RcptTo {
+        address: String,
+        params: Vec<(String, Option<String>)>,
+    },
     /// `DATA`
     Data,
     /// `BDAT n [LAST]` (CHUNKING)
@@ -65,9 +74,15 @@ impl Command {
             None => (line, ""),
         };
         match verb.to_ascii_uppercase().as_str() {
-            "HELO" => Some(Self::Helo { host: rest.to_string() }),
-            "EHLO" => Some(Self::Ehlo { host: rest.to_string() }),
-            "LHLO" => Some(Self::Lhlo { host: rest.to_string() }),
+            "HELO" => Some(Self::Helo {
+                host: rest.to_string(),
+            }),
+            "EHLO" => Some(Self::Ehlo {
+                host: rest.to_string(),
+            }),
+            "LHLO" => Some(Self::Lhlo {
+                host: rest.to_string(),
+            }),
             "STARTTLS" => Some(Self::StartTls),
             "AUTH" => {
                 let mut parts = rest.splitn(2, ' ');
@@ -81,24 +96,37 @@ impl Command {
             "MAIL" => {
                 // MAIL FROM:<addr> PARAM=VALUE ...
                 let (addr, params) = parse_path_and_params(rest, "FROM:")?;
-                Some(Self::MailFrom { address: addr, params })
+                Some(Self::MailFrom {
+                    address: addr,
+                    params,
+                })
             }
             "RCPT" => {
                 let (addr, params) = parse_path_and_params(rest, "TO:")?;
-                Some(Self::RcptTo { address: addr?, params })
+                Some(Self::RcptTo {
+                    address: addr?,
+                    params,
+                })
             }
             "DATA" => Some(Self::Data),
             "BDAT" => {
                 let mut parts = rest.split_whitespace();
                 let size = parts.next()?.parse().ok()?;
-                let last = parts.next().map(|p| p.eq_ignore_ascii_case("LAST")).unwrap_or(false);
+                let last = parts
+                    .next()
+                    .map(|p| p.eq_ignore_ascii_case("LAST"))
+                    .unwrap_or(false);
                 Some(Self::Bdat { size, last })
             }
             "RSET" => Some(Self::Reset),
             "NOOP" => Some(Self::Noop),
             "QUIT" => Some(Self::Quit),
-            "VRFY" => Some(Self::Vrfy { address: rest.to_string() }),
-            "EXPN" => Some(Self::Expn { address: rest.to_string() }),
+            "VRFY" => Some(Self::Vrfy {
+                address: rest.to_string(),
+            }),
+            "EXPN" => Some(Self::Expn {
+                address: rest.to_string(),
+            }),
             "HELP" => Some(Self::Help),
             _ => None,
         }
@@ -120,7 +148,11 @@ fn parse_path_and_params(
         None => (rest.trim(), ""),
     };
     let path = path.trim().trim_start_matches('<');
-    let address = if path.is_empty() { None } else { Some(path.to_string()) };
+    let address = if path.is_empty() {
+        None
+    } else {
+        Some(path.to_string())
+    };
     let params = tail
         .split_whitespace()
         .filter(|p| !p.is_empty())
@@ -139,7 +171,10 @@ impl Command {
             Self::MailFrom { params, .. } | Self::RcptTo { params, .. } => params,
             _ => return None,
         };
-        params.iter().find(|(k, _)| k.eq_ignore_ascii_case(keyword)).map(|(_, v)| v)
+        params
+            .iter()
+            .find(|(k, _)| k.eq_ignore_ascii_case(keyword))
+            .map(|(_, v)| v)
     }
 }
 
@@ -156,7 +191,12 @@ mod tests {
     #[test]
     fn parses_ehlo_and_mail() {
         let c = Command::parse("EHLO mail.example.com").unwrap();
-        assert_eq!(c, Command::Ehlo { host: "mail.example.com".into() });
+        assert_eq!(
+            c,
+            Command::Ehlo {
+                host: "mail.example.com".into()
+            }
+        );
         let c = Command::parse("MAIL FROM:<alice@example.com> SIZE=1234 BODY=8BITMIME").unwrap();
         match c {
             Command::MailFrom { address, params } => {
@@ -177,8 +217,10 @@ mod tests {
 
     #[test]
     fn parses_rcpt_with_orcpt() {
-        let c = Command::parse("RCPT TO:<bob@example.com> NOTIFY=SUCCESS,FAILURE ORCPT=rfc822;bob@example.com")
-            .unwrap();
+        let c = Command::parse(
+            "RCPT TO:<bob@example.com> NOTIFY=SUCCESS,FAILURE ORCPT=rfc822;bob@example.com",
+        )
+        .unwrap();
         match c {
             Command::RcptTo { address, params } => {
                 assert_eq!(address, "bob@example.com");

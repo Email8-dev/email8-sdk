@@ -42,7 +42,10 @@ pub enum ResolvedAddress {
         address: String,
     },
     /// A mailing list/group — expand to members.
-    Group { group_id: Uuid, members: Vec<String> },
+    Group {
+        group_id: Uuid,
+        members: Vec<String>,
+    },
     /// The env's catch-all target.
     CatchAll { account_id: Uuid, address: String },
     /// Not local — relay decision belongs to the caller (env relay policy).

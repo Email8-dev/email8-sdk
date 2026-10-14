@@ -15,8 +15,11 @@ pub mod dnsbl;
 pub mod rules;
 pub mod url;
 
-pub use classifier::{classify, FtrlModel, Features, TrainOutcome};
-pub use dnsbl::{check_dnsbl, pyzor_check, pyzor_digest, DnsblElements, DnsblHit, DnsblResolver, DnsblScope, DnsblZone, FnDnsblResolver};
+pub use classifier::{classify, Features, FtrlModel, TrainOutcome};
+pub use dnsbl::{
+    check_dnsbl, pyzor_check, pyzor_digest, DnsblElements, DnsblHit, DnsblResolver, DnsblScope,
+    DnsblZone, FnDnsblResolver,
+};
 pub use rules::{evaluate_tags, SpamVerdict, TagOutcome, TagSet, TagThresholds};
 pub use url::{scan_urls, UrlFindings};
 
@@ -44,7 +47,11 @@ impl SpamReport {
             "{}, score={}{}",
             if yes { "Yes" } else { "No" },
             self.score_pct,
-            if tags.is_empty() { String::new() } else { format!(" tags={}", tags.join(",")) }
+            if tags.is_empty() {
+                String::new()
+            } else {
+                format!(" tags={}", tags.join(","))
+            }
         )
     }
 
@@ -74,8 +81,16 @@ mod tests {
             verdict: SpamVerdict::Quarantine,
             score_pct: 62,
             tags: vec![
-                TagOutcome { tag: TagSet::Subject, hit: true, weight: 30 },
-                TagOutcome { tag: TagSet::Url, hit: false, weight: 0 },
+                TagOutcome {
+                    tag: TagSet::Subject,
+                    hit: true,
+                    weight: 30,
+                },
+                TagOutcome {
+                    tag: TagSet::Url,
+                    hit: false,
+                    weight: 0,
+                },
             ],
             urls: vec![],
             model_pct: Some(70),

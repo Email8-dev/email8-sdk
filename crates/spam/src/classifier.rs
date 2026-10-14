@@ -108,7 +108,7 @@ impl FtrlModel {
             let w = self.weights[*idx] as f64;
             // Proximal update with combined L1/L2:
             // g = grad*v; σ = (sqrt(n + g²) − sqrt(n)) / α; n += g²
-            let g = grad * *v as f64;
+            let g = grad * *v;
             let n_old = self.norms[*idx] as f64;
             let n_new = n_old + g * g;
             self.norms[*idx] = n_new as f32;
@@ -129,7 +129,10 @@ impl FtrlModel {
             self.weights[*idx] = w_new as f32;
         }
         self.trained_samples += 1;
-        TrainOutcome { loss: -(y * p.ln() + (1.0 - y) * (1.0 - p).ln()), prediction: p }
+        TrainOutcome {
+            loss: -(y * p.ln() + (1.0 - y) * (1.0 - p).ln()),
+            prediction: p,
+        }
     }
 }
 

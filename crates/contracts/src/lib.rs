@@ -18,13 +18,13 @@
 //! Design: `email8/design/sentin8-email8-technical-design.md` §4.6.
 
 pub mod enums;
-pub mod events;
 pub mod errors;
+pub mod events;
 pub mod queue;
 pub mod store_api;
 
 pub use enums::*;
-pub use events::*;
 pub use errors::*;
+pub use events::*;
 pub use queue::*;
 pub use store_api::*;

@@ -25,7 +25,8 @@ impl JmapResponse {
 
     /// Append a successful method response: `["Foo/get", result, callId]`.
     pub fn push(&mut self, name: impl Into<String>, result: Value, call_id: impl Into<String>) {
-        self.method_responses.push((name.into(), result, call_id.into()));
+        self.method_responses
+            .push((name.into(), result, call_id.into()));
     }
 
     /// Append a per-call error: `["error", {...}, callId]`.
@@ -34,7 +35,8 @@ impl JmapResponse {
             "type": "error",
             "description": description.as_ref(),
         });
-        self.method_responses.push(("error".into(), payload, call_id.into()));
+        self.method_responses
+            .push(("error".into(), payload, call_id.into()));
     }
 
     /// Record a `createdIds` mapping from a Set/Import response.

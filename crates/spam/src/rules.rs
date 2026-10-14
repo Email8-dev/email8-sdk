@@ -122,7 +122,10 @@ fn default_weight(tag: &TagSet) -> u8 {
 
 /// Evaluate the tag outcomes into a verdict. `hits` are the tags that
 /// fired for this message.
-pub fn evaluate_tags(hits: &[TagSet], thresholds: &TagThresholds) -> (SpamVerdict, Vec<TagOutcome>) {
+pub fn evaluate_tags(
+    hits: &[TagSet],
+    thresholds: &TagThresholds,
+) -> (SpamVerdict, Vec<TagOutcome>) {
     let mut outcomes = Vec::new();
     let mut total: u32 = 0;
     for tag in hits {
@@ -133,7 +136,11 @@ pub fn evaluate_tags(hits: &[TagSet], thresholds: &TagThresholds) -> (SpamVerdic
             .copied()
             .unwrap_or_else(|| default_weight(tag));
         total += weight as u32;
-        outcomes.push(TagOutcome { tag: *tag, weight, hit: true });
+        outcomes.push(TagOutcome {
+            tag: *tag,
+            weight,
+            hit: true,
+        });
     }
     let pct = total.min(100) as u8;
     let verdict = if pct >= thresholds.reject_at {
