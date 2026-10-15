@@ -79,9 +79,7 @@ impl ParsedMessage {
     }
 
     pub fn to_addresses(&self) -> Vec<String> {
-        self.header("to")
-            .map(extract_addresses)
-            .unwrap_or_default()
+        self.header("to").map(extract_addresses).unwrap_or_default()
     }
 
     pub fn subject(&self) -> Option<&str> {
@@ -260,10 +258,9 @@ fn strip_html(html: &str) -> String {
                 }
             }
             '>' => in_tag = false,
-            _ if !in_tag && skip_depth == 0
-                && skip_depth == 0 => {
-                    out.push(ch);
-                }
+            _ if !in_tag && skip_depth == 0 && skip_depth == 0 => {
+                out.push(ch);
+            }
             _ => {}
         }
     }
