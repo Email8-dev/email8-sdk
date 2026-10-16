@@ -105,4 +105,3 @@ blake3 = "1"
 regex = "1"
 percent-encoding = "2"
 memchr = "2"
-mimalloc = { version = "0.1", default-features = false }
