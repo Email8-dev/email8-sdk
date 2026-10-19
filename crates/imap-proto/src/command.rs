@@ -3,7 +3,7 @@
 // SPDX-FileCopyrightText: Copyright Contributors to the Email8:SDK
 // SPDX-License-Identifier: Apache-2.0
 
-//! Typed IMAP command model — the ops the Email8:Access server implements
+//! Typed IMAP command model - the ops the Email8:Access server implements
 //! in P1 plus the FETCH/STORE/SEARCH/LIST argument grammars.
 
 use std::collections::BTreeSet;
@@ -113,14 +113,14 @@ pub enum Op {
         mailbox: String,
         uid: bool,
     },
-    /// RFC 5256 SORT — sort keys + search criteria (the search filters
+    /// RFC 5256 SORT - sort keys + search criteria (the search filters
     /// the candidate set, the keys define order).
     Sort {
         keys: Vec<String>,
         criteria: SearchCriteria,
         uid: bool,
     },
-    /// RFC 5256 THREAD — REFERENCES | ORDEREDSUBJECT algorithm.
+    /// RFC 5256 THREAD - REFERENCES | ORDEREDSUBJECT algorithm.
     Thread {
         algorithm: String,
         criteria: SearchCriteria,
@@ -128,7 +128,7 @@ pub enum Op {
     },
     Idle,
     Done,
-    /// Anything else — answered BAD without a typed model.
+    /// Anything else - answered BAD without a typed model.
     Unsupported {
         name: String,
     },
@@ -375,7 +375,7 @@ fn parse_op(rest: &str) -> Option<Op> {
         "SORT" => parse_sort(args, false),
         "THREAD" => parse_thread(args, false),
         "UID" => {
-            // UID <op> ... — dispatch on the sub-op with UID-mode semantics.
+            // UID <op> ... - dispatch on the sub-op with UID-mode semantics.
             let sub_args = args;
             let (sub, sub_args) = match sub_args.find(' ') {
                 Some(pos) => (&sub_args[..pos], &sub_args[pos + 1..]),
@@ -568,7 +568,7 @@ fn parse_store(args: &str, uid: bool) -> Option<Op> {
         (None, rest)
     };
     // Item name: `+FLAGS[.SILENT]` / `-FLAGS[.SILENT]` / `FLAGS[.SILENT]`
-    // — the `.SILENT` suffix is part of the item name, so split on the
+    // - the `.SILENT` suffix is part of the item name, so split on the
     // first whitespace and inspect the token.
     let (token, tail) = match rest.find(char::is_whitespace) {
         Some(pos) => (&rest[..pos], rest[pos..].trim_start()),
@@ -584,7 +584,7 @@ fn parse_store(args: &str, uid: bool) -> Option<Op> {
                 None => (StoreItem::Flags, tail),
             },
         };
-    // Flags may be parenthesized: `(\Seen $label)` — unwrap, then split.
+    // Flags may be parenthesized: `(\Seen $label)` - unwrap, then split.
     let flags_str = flags_str.trim();
     let flags_str = flags_str
         .strip_prefix('(')
@@ -680,7 +680,7 @@ fn parse_criteria(args: &str) -> Option<SearchCriteria> {
                 crit.uids = set.0.iter().map(|r| r.start).collect();
             }
             _ => {
-                // Bare sequence set or a date — treat a numeric token as a
+                // Bare sequence set or a date - treat a numeric token as a
                 // sequence match; ignore unknowns conservatively.
                 if tok
                     .chars()

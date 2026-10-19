@@ -10,7 +10,7 @@ edition.workspace = true
 license.workspace = true
 repository.workspace = true
 rust-version.workspace = true
-description = "Email8 DAV wire helpers — XML parsing/building for PROPFIND/REPORT bodies, ETags, lock tokens, depth headers."
+description = "Email8 DAV wire helpers - XML parsing/building for PROPFIND/REPORT bodies, ETags, lock tokens, depth headers."
 
 [dependencies]
 chrono.workspace = true

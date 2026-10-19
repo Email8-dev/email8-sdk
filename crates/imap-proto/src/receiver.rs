@@ -3,11 +3,11 @@
 // SPDX-FileCopyrightText: Copyright Contributors to the Email8:SDK
 // SPDX-License-Identifier: Apache-2.0
 
-//! Incremental IMAP line receiver — LITERAL+ aware.
+//! Incremental IMAP line receiver - LITERAL+ aware.
 //!
 //! Commands complete on CRLF. A `{n}` literal is answered with a `+`
 //! continuation and its `n` bytes are consumed verbatim before the next
-//! line is parsed (`{n+}` is the non-synchronizing LITERAL+ form — the
+//! line is parsed (`{n+}` is the non-synchronizing LITERAL+ form - the
 //! client sends the bytes without waiting).
 
 use crate::command::{self, ClientCommand};
@@ -16,7 +16,7 @@ use crate::command::{self, ClientCommand};
 #[derive(Debug)]
 pub struct Receiver {
     buffer: Vec<u8>,
-    /// Pending literal: (size, synchronizing) — bytes to consume verbatim.
+    /// Pending literal: (size, synchronizing) - bytes to consume verbatim.
     pending_literal: Option<(usize, bool)>,
 }
 

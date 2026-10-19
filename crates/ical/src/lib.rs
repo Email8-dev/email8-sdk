@@ -3,7 +3,7 @@
 // SPDX-FileCopyrightText: Copyright Contributors to the Email8:SDK
 // SPDX-License-Identifier: Apache-2.0
 
-//! Email8 iCalendar — RFC 5545 parse/build + recurrence expansion.
+//! Email8 iCalendar - RFC 5545 parse/build + recurrence expansion.
 //!
 //! A pragmatic subset: VEVENT (+ VTODO basic fields), folded-line
 //! unfolding, property parameters, DATE-TIME / DATE values, RRULE
@@ -105,7 +105,7 @@ pub fn parse(raw: &str) -> IcalComponent {
             if name == "END" {
                 break;
             }
-            // NAME;PARAM=V;PARAM2=V2:value — params may be quoted.
+            // NAME;PARAM=V;PARAM2=V2:value - params may be quoted.
             if let Some(prop) = parse_property(line) {
                 comp.properties.push(prop);
             }
@@ -121,7 +121,7 @@ pub fn parse(raw: &str) -> IcalComponent {
     parse_block(&lines)
 }
 
-/// Parse one property line (NAME;PARAM=value:value) — quote-aware on
+/// Parse one property line (NAME;PARAM=value:value) - quote-aware on
 /// both the `:` group separator and the `;` parameter splits.
 fn parse_property(line: &str) -> Option<IcalProperty> {
     let mut in_quotes = false;
@@ -282,7 +282,7 @@ impl RRule {
                         })
                         .collect();
                 }
-                _ => {} // WKST/BYMONTH/etc. — P2
+                _ => {} // WKST/BYMONTH/etc. - P2
             }
         }
         if r.freq.is_empty() {
@@ -411,7 +411,7 @@ pub fn synthetic_uid(event: &IcalComponent) -> String {
 }
 
 fn blake3_sub(data: &[u8]) -> String {
-    // A tiny stable hash (FNV-1a) — blake3 isn't a dep of this crate
+    // A tiny stable hash (FNV-1a) - blake3 isn't a dep of this crate
     // and the UID only needs uniqueness, not cryptographic strength.
     let mut h: u64 = 0xcbf29ce484222325;
     for b in data {

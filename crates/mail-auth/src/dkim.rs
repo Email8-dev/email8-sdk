@@ -3,7 +3,7 @@
 // SPDX-FileCopyrightText: Copyright Contributors to the Email8:SDK
 // SPDX-License-Identifier: Apache-2.0
 
-//! DKIM (RFC 6376) — sign + verify with relaxed/simple canonicalization,
+//! DKIM (RFC 6376) - sign + verify with relaxed/simple canonicalization,
 //! rsa-sha256 and ed25519-sha256, header chaining, `l=` body length,
 //! `t=` timestamps. Verification is incremental like the legacy
 //! implementation: each signature verifies independently; weak/failed
@@ -69,7 +69,7 @@ pub enum DkimStatus {
     Fail(String),
     TempError(String),
     PermError(String),
-    /// No key published (NORECORD) — the caller strips and reports.
+    /// No key published (NORECORD) - the caller strips and reports.
     NoKey,
 }
 
@@ -131,7 +131,7 @@ fn canon_header_relaxed(name: &str, value: &str) -> String {
     format!("{}:{}", name.to_ascii_lowercase(), value)
 }
 
-/// Simple header canonicalization (§3.4.1) — name + unfolded value, CRLF.
+/// Simple header canonicalization (§3.4.1) - name + unfolded value, CRLF.
 fn canon_header_simple(name: &str, value: &str) -> String {
     format!("{}:{}\r\n", name, unfold(value))
 }
@@ -313,7 +313,7 @@ async fn verify_one(
         None => return DkimStatus::PermError("unparseable key record".into()),
     };
     // Build the signed data: canonicalized h= headers + the (b-stripped)
-    // DKIM-Signature header itself. RFC 6376 §3.4.2 — each canonicalized
+    // DKIM-Signature header itself. RFC 6376 §3.4.2 - each canonicalized
     // header ends with CRLF.
     let data = build_signed_data(headers, sig, hcanon);
     let sig_bytes = match base64::engine::general_purpose::STANDARD.decode(&sig.signature) {
@@ -497,7 +497,7 @@ fn find_body_offset(raw: &[u8]) -> usize {
 }
 
 fn constant_time_eq(a: &str, b: &str) -> bool {
-    // Base64 of a SHA-256 — timing side channels are not meaningful here,
+    // Base64 of a SHA-256 - timing side channels are not meaningful here,
     // but compare in constant time anyway.
     if a.len() != b.len() {
         return false;
@@ -575,7 +575,7 @@ pub fn dkim_sign(
             *want += 1;
         }
     }
-    // The new DKIM-Signature header participates with an empty b= —
+    // The new DKIM-Signature header participates with an empty b= -
     // canonicalized, no trailing CRLF (RFC 6376 §3.7).
     let pseudo = strip_b_tag(&sig_header);
     let canon_self =
@@ -667,7 +667,7 @@ mod tests {
         let b = canon_body(b"HI!\r\n\r\n\r\n\r\n", CanonMode::Relaxed, None);
         assert_eq!(a, b);
         // Interior WSP runs reduce to single SP (§3.4.3); trailing WSP
-        // and empty lines are stripped — leading WSP reduces but stays.
+        // and empty lines are stripped - leading WSP reduces but stays.
         let c = canon_body(b"  HI!  \r\n", CanonMode::Relaxed, None);
         assert_eq!(c, b" HI!\r\n".to_vec());
         let d = canon_body(b"H \t I !\r\n", CanonMode::Relaxed, None);

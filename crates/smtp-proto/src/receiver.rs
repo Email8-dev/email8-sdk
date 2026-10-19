@@ -6,17 +6,17 @@
 //! Incremental SMTP line receiver.
 //!
 //! Bytes are fed from the socket; the receiver buffers until a CRLF
-//! terminates a command line. Pipelining is inherent — several complete
+//! terminates a command line. Pipelining is inherent - several complete
 //! lines may be drained from one socket read. BDAT chunk bodies are
 //! consumed verbatim (byte-counted, not line-scanned).
 
 use crate::command::Command;
 
-/// Receiver state — buffering partial lines/chunks between socket reads.
+/// Receiver state - buffering partial lines/chunks between socket reads.
 #[derive(Debug, Default)]
 pub struct Receiver {
     buffer: Vec<u8>,
-    /// Pending BDAT chunk: (remaining size, last) — set when a BDAT
+    /// Pending BDAT chunk: (remaining size, last) - set when a BDAT
     /// command line arrives before its body bytes did.
     pending_chunk: Option<(usize, bool)>,
     /// Plain-DATA mode (RFC 5321 §4.1.1.4): active between `DATA` and
@@ -45,7 +45,7 @@ impl Receiver {
         }
     }
 
-    /// Enter plain-DATA mode — called by the session right after it
+    /// Enter plain-DATA mode - called by the session right after it
     /// replies `354` to `DATA`. Subsequent lines are message content
     /// until the lone `.` terminator.
     pub fn begin_data(&mut self) {
@@ -83,7 +83,7 @@ impl Receiver {
                                 line.pop(); // strip \r
                             }
                             if line == b"." {
-                                // Terminator — do not include it.
+                                // Terminator - do not include it.
                                 self.data_mode = false;
                                 terminated = true;
                                 break;
@@ -125,7 +125,7 @@ impl Receiver {
                         Some(Command::Bdat { size, last }) => {
                             out.push(Element::Command(Command::Bdat { size, last }));
                             // The BDAT body is NOT CRLF-terminated (RFC 3030
-                            // — byte-counted). Remember it and consume verbatim
+                            // - byte-counted). Remember it and consume verbatim
                             // on this or the next parse() pass.
                             if self.buffer.len() >= size {
                                 let data: Vec<u8> = self.buffer.drain(..size).collect();
@@ -212,7 +212,7 @@ mod tests {
             matches!(&els[0], Element::DataChunk { data, last: false } if data == b"abcdefghij")
         );
         assert!(matches!(els[1], Element::Command(Command::Noop)));
-        // "klm" (no CRLF yet) stays buffered — completing it yields Invalid.
+        // "klm" (no CRLF yet) stays buffered - completing it yields Invalid.
         let els = r.parse(b"\r\n");
         assert_eq!(els.len(), 1);
         assert!(matches!(els[0], Element::Invalid(_)));

@@ -3,7 +3,7 @@
 // SPDX-FileCopyrightText: Copyright Contributors to the Email8:SDK
 // SPDX-License-Identifier: Apache-2.0
 
-//! ARC (Authenticated Received Chain) — RFC 8617.
+//! ARC (Authenticated Received Chain) - RFC 8617.
 //!
 //! A receiving MTA that alters a message (forwarding, mailing lists)
 //! breaks DKIM. ARC lets each hop record its authentication assessment
@@ -72,7 +72,7 @@ pub fn extract_chain(raw: &[u8]) -> Vec<ArcSet> {
 /// Chain validation outcome (RFC 8617 §4.2.2).
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ArcChainResult {
-    /// No ARC headers — not an ARC-processed message.
+    /// No ARC headers - not an ARC-processed message.
     None,
     /// Chain valid: numbering contiguous, cv continuity holds, every
     /// AMS signature that matters verified.
@@ -136,7 +136,7 @@ pub async fn arc_verify(dns: &dyn crate::DnsTxt, raw: &[u8]) -> ArcChainResult {
 
 /// Verify one instance's AMS key presence + algorithm (RFC 8617 §4.1.2).
 /// The AMS reuses DKIM's key lookup (selector._domainkey.domain) but its
-/// tag grammar has no `v=` — instance `i=` replaces it — so the tags are
+/// tag grammar has no `v=` - instance `i=` replaces it - so the tags are
 /// parsed here rather than through dkim's `parse_signature`.
 async fn verify_ams(dns: &dyn crate::DnsTxt, set: &ArcSet) -> bool {
     if set.ams.is_empty() {

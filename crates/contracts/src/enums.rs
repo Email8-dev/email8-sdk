@@ -3,7 +3,7 @@
 // SPDX-FileCopyrightText: Copyright Contributors to the Email8:SDK
 // SPDX-License-Identifier: Apache-2.0
 
-//! Shared domain enums — collections, ACL rights, special-use roles,
+//! Shared domain enums - collections, ACL rights, special-use roles,
 //! queue statuses, delivery schedules.
 //!
 //! These replace the legacy u8 `Collection`, the 17-bit `Acl` bitmap, the
@@ -77,7 +77,7 @@ impl Collection {
     }
 }
 
-/// ACL right bits (legacy `types::acl::Acl` — same bit assignments).
+/// ACL right bits (legacy `types::acl::Acl` - same bit assignments).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Acl(pub u32);
 
@@ -151,7 +151,7 @@ pub enum QueueName {
 }
 
 impl QueueName {
-    /// Default retry schedules — seconds after each successive attempt
+    /// Default retry schedules - seconds after each successive attempt
     /// (legacy defaults from `common/src/manager/defaults.rs`).
     pub fn retry_schedule(self) -> &'static [u32] {
         match self {
@@ -169,7 +169,7 @@ impl QueueName {
         }
     }
 
-    /// Default expiry (seconds) — TTL for local/remote, attempt counts for
+    /// Default expiry (seconds) - TTL for local/remote, attempt counts for
     /// dsn/report queues are enforced by the schedule length instead.
     pub fn expiry_ttl(self) -> Option<u64> {
         match self {
@@ -189,7 +189,7 @@ pub enum DkimStage {
     Retired,
 }
 
-/// Message source flags — set on queued messages to drive policy
+/// Message source flags - set on queued messages to drive policy
 /// (auth-results, spam filtering, DKIM signing).
 pub mod message_source {
     pub const AUTHENTICATED: u32 = 1 << 0;

@@ -3,7 +3,7 @@
 // SPDX-FileCopyrightText: Copyright Contributors to the Email8:SDK
 // SPDX-License-Identifier: Apache-2.0
 
-//! SMTP/LMTP wire protocol library — server role.
+//! SMTP/LMTP wire protocol library - server role.
 //!
 //! Incremental line-based receiver (bytes are fed from the socket; commands
 //! complete on CRLF), a typed `Command` model, and an SMTP reply builder

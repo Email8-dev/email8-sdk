@@ -3,7 +3,7 @@
 // SPDX-FileCopyrightText: Copyright Contributors to the Email8:SDK
 // SPDX-License-Identifier: Apache-2.0
 
-//! Tag-based scoring — the legacy stage-chain port. Each tag has a
+//! Tag-based scoring - the legacy stage-chain port. Each tag has a
 //! weight; the sum (capped at 100) crosses thresholds →
 //! Allow / Quarantine / Discard / Reject.
 
@@ -93,13 +93,13 @@ pub struct TagOutcome {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum SpamVerdict {
-    /// Score below quarantine — deliver (INBOX).
+    /// Score below quarantine - deliver (INBOX).
     Allow,
-    /// ≥ quarantine — deliver re-filed to JUNK by the ingest path.
+    /// ≥ quarantine - deliver re-filed to JUNK by the ingest path.
     Quarantine,
-    /// ≥ discard — silently drop.
+    /// ≥ discard - silently drop.
     Discard,
-    /// ≥ reject — refuse at the protocol level (inbound sessions).
+    /// ≥ reject - refuse at the protocol level (inbound sessions).
     Reject,
 }
 

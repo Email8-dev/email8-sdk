@@ -3,7 +3,7 @@
 // SPDX-FileCopyrightText: Copyright Contributors to the Email8:SDK
 // SPDX-License-Identifier: Apache-2.0
 
-//! JMAP capability URNs — the set the Email8:Store server advertises
+//! JMAP capability URNs - the set the Email8:Store server advertises
 //! (RFC 8620/8621 + Sieve + groupware).
 
 /// Capability URN constants (RFC 8620 §19 / RFC 8621 §1).
@@ -22,7 +22,7 @@ pub mod urn {
     pub const WEBSOCKET: &str = "urn:ietf:params:jmap:websocket";
 }
 
-/// Which capability a method call belongs to — enforced against the
+/// Which capability a method call belongs to - enforced against the
 /// request's `using` array.
 pub fn capability_for_method(object: &str) -> Option<&'static str> {
     match object {

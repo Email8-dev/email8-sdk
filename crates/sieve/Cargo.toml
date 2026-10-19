@@ -10,7 +10,7 @@ edition.workspace = true
 license.workspace = true
 repository.workspace = true
 rust-version.workspace = true
-description = "Email8 Sieve (RFC 5228) — untrusted compiler + interpreter with the core extension set."
+description = "Email8 Sieve (RFC 5228) - untrusted compiler + interpreter with the core extension set."
 
 [dependencies]
 chrono.workspace = true

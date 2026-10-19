@@ -3,7 +3,7 @@
 // SPDX-FileCopyrightText: Copyright Contributors to the Email8:SDK
 // SPDX-License-Identifier: Apache-2.0
 
-//! FTS support (story 2.6) — ingest-side language detection for
+//! FTS support (story 2.6) - ingest-side language detection for
 //! tsvector configuration and SearchSnippet extraction for JMAP
 //! `Email/query` highlight results.
 //!
@@ -114,7 +114,7 @@ pub fn snippet(body: &str, query: &str, max_chars: usize) -> Snippet {
         }
     }
     let Some(pos) = hit else {
-        // No match — head of the text.
+        // No match - head of the text.
         return Snippet {
             preview: truncate_chars(&flat, max_chars),
         };

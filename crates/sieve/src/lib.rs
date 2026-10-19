@@ -3,13 +3,13 @@
 // SPDX-FileCopyrightText: Copyright Contributors to the Email8:SDK
 // SPDX-License-Identifier: Apache-2.0
 
-//! Email8 Sieve — RFC 5228 grammar (untrusted user scripts + trusted
+//! Email8 Sieve - RFC 5228 grammar (untrusted user scripts + trusted
 //! stage scripts share one compiler), interpreter with the core
 //! extension set: fileinto, redirect, reject, keep, stop, discard,
 //! vacation, comparator-i;ascii-numeric (subset), relational (eq/ne via
 //! numeric), plus header/address/body/test lists.
 //!
-//! Actions are *collected* — the caller (Store ingest / Mta stage) applies
+//! Actions are *collected* - the caller (Store ingest / Mta stage) applies
 //! them against its data model. The interpreter never performs I/O.
 
 pub mod compiler;

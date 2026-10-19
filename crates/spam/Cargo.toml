@@ -10,7 +10,7 @@ edition.workspace = true
 license.workspace = true
 repository.workspace = true
 rust-version.workspace = true
-description = "Email8 spam engine — tag-based rules, DNSBL/URL heuristics, FTRL classifier, thresholds + X-Spam headers."
+description = "Email8 spam engine - tag-based rules, DNSBL/URL heuristics, FTRL classifier, thresholds + X-Spam headers."
 
 [dependencies]
 serde.workspace = true

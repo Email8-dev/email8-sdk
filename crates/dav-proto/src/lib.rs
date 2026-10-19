@@ -3,9 +3,9 @@
 // SPDX-FileCopyrightText: Copyright Contributors to the Email8:SDK
 // SPDX-License-Identifier: Apache-2.0
 
-//! Email8 DAV wire helpers — a minimal, robust XML toolkit for
+//! Email8 DAV wire helpers - a minimal, robust XML toolkit for
 //! CalDAV/CardDAV/WebDAV bodies: `propfind`/`proppatch`/`report`
-//! request parsing (no external XML crate — DAV bodies are small and
+//! request parsing (no external XML crate - DAV bodies are small and
 //! shallow; a hand-rolled scanner avoids the dependency), response
 //! building (multistatus + status rows), ETag/lock-token utilities,
 //! `Depth` header parsing.

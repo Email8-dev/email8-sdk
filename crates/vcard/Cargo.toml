@@ -10,7 +10,7 @@ edition.workspace = true
 license.workspace = true
 repository.workspace = true
 rust-version.workspace = true
-description = "Email8 vCard — parse/build (RFC 6350) with email/fn/n normalization for contact cards."
+description = "Email8 vCard - parse/build (RFC 6350) with email/fn/n normalization for contact cards."
 
 [dependencies]
 serde.workspace = true

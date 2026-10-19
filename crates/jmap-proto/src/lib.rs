@@ -3,7 +3,7 @@
 // SPDX-FileCopyrightText: Copyright Contributors to the Email8:SDK
 // SPDX-License-Identifier: Apache-2.0
 
-//! JMAP (RFC 8620) wire protocol library — request parsing, method-call
+//! JMAP (RFC 8620) wire protocol library - request parsing, method-call
 //! dispatch types, result references, and response building.
 //!
 //! The Email8:Store service consumes this crate to serve `POST /jmap`.

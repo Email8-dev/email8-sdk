@@ -8,7 +8,7 @@ name = "email8"
 version = "0.1.0"
 edition = "2021"
 license = "UNLICENSED"
-description = "email8 namespace facade — every email8 crate imports as email8::{leaf} (architecture-principles §2.1)."
+description = "email8 namespace facade - every email8 crate imports as email8::{leaf} (architecture-principles §2.1)."
 
 [dependencies]
 # Gate-scoped leaf (service nesting per §2.1): I/O + wire parsing that

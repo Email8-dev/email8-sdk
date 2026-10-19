@@ -9,7 +9,7 @@
 //! (e.g. `1.0.0.127.zen.spamhaus.org`); an A answer means listed, with
 //! the answer value carrying the reason code. Per-element scopes
 //! (RFC 5781 "Service Names"): ip / domain / url / email / from / to /
-//! replyto / helo / ptr — each zone config declares which scopes it
+//! replyto / helo / ptr - each zone config declares which scopes it
 //! applies to, and a per-check cap bounds lookups per message
 //! (legacy `SpamFilterDNSBL` semantics).
 //!
@@ -95,7 +95,7 @@ impl DnsblZone {
     /// Build the query name for one element in this zone.
     /// - IP scopes: reversed octets (1.2.3.4 → 4.3.2.1.zone)
     /// - Domain/email scopes: the domain part (reversed-labels is
-    ///   NOT used for SURBL-style zones — plain subdomain form)
+    ///   NOT used for SURBL-style zones - plain subdomain form)
     pub fn query_name(&self, element: &str, scope: DnsblScope) -> Option<String> {
         match scope {
             DnsblScope::Ip => {

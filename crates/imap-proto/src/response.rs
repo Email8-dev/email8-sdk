@@ -3,7 +3,7 @@
 // SPDX-FileCopyrightText: Copyright Contributors to the Email8:SDK
 // SPDX-License-Identifier: Apache-2.0
 
-//! IMAP response builders — greeting, capabilities, tagged/untagged lines,
+//! IMAP response builders - greeting, capabilities, tagged/untagged lines,
 //! literal-safe quoting.
 
 /// Quote a string for IMAP wire output (RFC 9051 §4.3).
@@ -50,7 +50,7 @@ pub fn greeting(hostname: &str, capabilities: &[&str]) -> String {
     )
 }
 
-/// Capability list (P1 subset — grows with Epic 4.1).
+/// Capability list (P1 subset - grows with Epic 4.1).
 pub const CAPABILITIES_PRE_AUTH: &[&str] = &[
     "IMAP4rev2",
     "IMAP4rev1",

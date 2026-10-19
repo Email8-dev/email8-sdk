@@ -3,7 +3,7 @@
 // SPDX-FileCopyrightText: Copyright Contributors to the Email8:SDK
 // SPDX-License-Identifier: Apache-2.0
 
-//! DMARC (RFC 7489) — policy discovery + alignment evaluation.
+//! DMARC (RFC 7489) - policy discovery + alignment evaluation.
 //!
 //! Aggregate `rua`/`ruf` targets are surfaced for the caller to enqueue
 //! report work (the legacy DMARC report engine lives in Mta's report
@@ -16,9 +16,9 @@ use crate::spf::SpfResult;
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct DmarcPolicy {
     pub domain: String,
-    /// p= — none | quarantine | reject (unknown → none).
+    /// p= - none | quarantine | reject (unknown → none).
     pub policy: DmarcDisposition,
-    /// sp= (subdomain policy) — falls back to p.
+    /// sp= (subdomain policy) - falls back to p.
     pub subdomain_policy: Option<DmarcDisposition>,
     /// pct= sampling percent (default 100).
     pub pct: u8,
@@ -56,7 +56,7 @@ impl DmarcResult {
     pub fn passes(&self) -> bool {
         self.result == "pass"
     }
-    /// Reportable — rua/ruf present and evaluation concluded.
+    /// Reportable - rua/ruf present and evaluation concluded.
     pub fn reportable(&self) -> bool {
         self.policy
             .as_ref()
@@ -66,7 +66,7 @@ impl DmarcResult {
 }
 
 /// Fetch + parse `_dmarc.<domain>` (falls back to the organizational
-/// domain — here the caller passes the From-domain; the org-domain
+/// domain - here the caller passes the From-domain; the org-domain
 /// derivation is the Mta's PSL concern).
 pub async fn dmarc_lookup(dns: &dyn crate::DnsTxt, from_domain: &str) -> Option<DmarcPolicy> {
     let name = format!("_dmarc.{from_domain}");

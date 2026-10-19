@@ -14,7 +14,7 @@
 //! Each service then PUBLISHes its actual listener map to the Valkey
 //! registry so the gate can discover dial targets (the connection
 //! presents the CALLER's `m2m-{workload}` certificate identity over
-//! the Valkey TLS plane — platform group DESIGN.md §3.1):
+//! the Valkey TLS plane - platform group DESIGN.md §3.1):
 //!
 //! ```text
 //! HSET captain:listeners:{service_type}:{instance_key} {proto} "{port, implicit_tls}"
@@ -24,7 +24,7 @@
 //! Hash field = protocol name (`smtp`, `submission`, `imaps`, …);
 //! value = `{ip}:{port}`. The gate reads `captain:svc:{service_type}`
 //! for Active instances (ip from there) and `captain:listeners:{type}`
-//! for the port map — keyed by the instance's `{ip}:{shell_port}` when
+//! for the port map - keyed by the instance's `{ip}:{shell_port}` when
 //! instances differ, falling back to the shared map.
 //!
 //! Dev direct-bind mode: an explicit `EMAIL8_*_PORT` env pins the port
@@ -33,7 +33,7 @@
 /// One bound raw listener.
 #[derive(Debug, Clone)]
 pub struct BoundListener {
-    /// Protocol name — the gate's listener-name space (`smtp`,
+    /// Protocol name - the gate's listener-name space (`smtp`,
     /// `submission`, `submissions`, `imap`, `imaps`, `pop3`, `pop3s`,
     /// `sieve`).
     pub proto: &'static str,
@@ -44,9 +44,9 @@ pub struct BoundListener {
 
 /// Publish the listener map for `service_type`, presenting the CALLER's
 /// `workload` certificate identity (the CN maps to its enroll-provisioned
-/// ACL user — platform group DESIGN.md §3.1). Best-effort: Valkey
+/// ACL user - platform group DESIGN.md §3.1). Best-effort: Valkey
 /// unavailability degrades to log-only (the gate then finds no entry
-/// and refuses connections for that service — visible, not silent).
+/// and refuses connections for that service - visible, not silent).
 pub async fn publish(
     valkey_url: &str,
     workload: &str,
@@ -58,7 +58,7 @@ pub async fn publish(
     let Ok(client) = sentin8::middleware::valkey_client(valkey_url, workload).await else {
         tracing::warn!(
             service = service_type,
-            "email8:listeners: valkey connect failed — gate discovery unavailable"
+            "email8:listeners: valkey connect failed - gate discovery unavailable"
         );
         return;
     };
@@ -133,7 +133,7 @@ mod tests {
 
     #[test]
     fn publish_inputs_are_cheap_clones() {
-        // The publisher takes owned Strings — document the contract that
+        // The publisher takes owned Strings - document the contract that
         // callers build them per-boot (no hot-path allocation concerns).
         let svc = "email8-mta".to_string();
         let key = "172.0.0.1:8052".to_string();

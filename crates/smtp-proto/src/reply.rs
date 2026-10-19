@@ -3,7 +3,7 @@
 // SPDX-FileCopyrightText: Copyright Contributors to the Email8:SDK
 // SPDX-License-Identifier: Apache-2.0
 
-//! SMTP reply construction — status codes, enhanced status codes, and the
+//! SMTP reply construction - status codes, enhanced status codes, and the
 //! canonical replies used by the inbound pipeline (parity with the legacy
 //! response strings).
 

@@ -3,7 +3,7 @@
 // SPDX-FileCopyrightText: Copyright Contributors to the Email8:SDK
 // SPDX-License-Identifier: Apache-2.0
 
-//! Retry/notify/expiry schedule resolution — the legacy `QueueStrategy`
+//! Retry/notify/expiry schedule resolution - the legacy `QueueStrategy`
 //! tables. All values are seconds; per-strategy env overrides are read
 //! by the Mta (config rows), not here.
 
@@ -38,7 +38,7 @@ impl QueueKind {
         }
     }
 
-    /// Message TTL (seconds) — expiry sweep boundary.
+    /// Message TTL (seconds) - expiry sweep boundary.
     pub fn expiry_ttl(self) -> Option<i64> {
         match self {
             QueueKind::Local | QueueKind::Remote => Some(3 * 86400),

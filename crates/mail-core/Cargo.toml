@@ -10,7 +10,7 @@ edition.workspace = true
 license.workspace = true
 repository.workspace = true
 rust-version.workspace = true
-description = "Email8 mail core — RFC 5322/MIME parsing, threading (CheekyHash), envelope + preview extraction."
+description = "Email8 mail core - RFC 5322/MIME parsing, threading (CheekyHash), envelope + preview extraction."
 
 [dependencies]
 blake3.workspace = true

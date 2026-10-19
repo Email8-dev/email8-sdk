@@ -3,7 +3,7 @@
 // SPDX-FileCopyrightText: Copyright Contributors to the Email8:SDK
 // SPDX-License-Identifier: Apache-2.0
 
-//! Threading — the CheekyHash algorithm (normalized subject + references)
+//! Threading - the CheekyHash algorithm (normalized subject + references)
 //! re-implemented on SQL.
 //!
 //! The legacy index property (`EmailField::Threading`, CheekyHash of the
@@ -21,7 +21,7 @@ use crate::message::ParsedMessage;
 /// Legacy semantics (`utils::cheeky_hash`): the subject is normalized
 /// (lowercased, punctuation removed, `re:` prefixes and leading
 /// `[External]`-style tags stripped). The hashed id set is the message's
-/// reference chain when present, else its own Message-ID — so a reply
+/// reference chain when present, else its own Message-ID - so a reply
 /// and its parent land on the same key (the parent's id appears in the
 /// child's references).
 pub fn thread_key(msg: &ParsedMessage) -> u64 {
@@ -76,7 +76,7 @@ pub fn normalize_subject(subject: &str) -> String {
             s = rest.trim_start().to_string();
             continue;
         }
-        // Leading `[tag]` — transparent for prefix stripping; the text
+        // Leading `[tag]` - transparent for prefix stripping; the text
         // is re-attached so collapse keeps it as a word.
         if s.starts_with('[') {
             if let Some(end) = s.find(']') {
@@ -107,7 +107,7 @@ pub fn normalize_subject(subject: &str) -> String {
     out.trim().to_string()
 }
 
-/// Reference-set equality — duplicate detection (legacy: exact
+/// Reference-set equality - duplicate detection (legacy: exact
 /// reference-set equality marks the message a duplicate of an existing
 /// thread member).
 pub fn same_reference_set(a: &[String], b: &[String]) -> bool {

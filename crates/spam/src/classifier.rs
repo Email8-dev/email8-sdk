@@ -3,7 +3,7 @@
 // SPDX-FileCopyrightText: Copyright Contributors to the Email8:SDK
 // SPDX-License-Identifier: Apache-2.0
 
-//! FTRL (Follow-The-Regularized-Leader) classifier — hashed feature
+//! FTRL (Follow-The-Regularized-Leader) classifier - hashed feature
 //! space, logistic loss, model artifact serialize/deserialize for the
 //! Storage-backed hot-swap flow (bus event `email8:spam:model:updated`).
 //! Per-recipient personalization: the caller trains with (features,
@@ -12,7 +12,7 @@
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 
-/// Feature-hashing space size (2^18 — legacy parity).
+/// Feature-hashing space size (2^18 - legacy parity).
 const DIM: usize = 1 << 18;
 
 /// A hashed feature: `namespace:value` (e.g. `subject:viagra`).
@@ -47,7 +47,7 @@ impl Features {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct FtrlModel {
     pub weights: Vec<f32>,
-    /// FTRL-Proximal z-accumulators (z_i ← z_i + g − σ·w) — the
+    /// FTRL-Proximal z-accumulators (z_i ← z_i + g − σ·w) - the
     /// algorithm's primary state; without them each step would forget
     /// the accumulated gradient history and the L1-zeroed coordinates
     /// could never recover.
@@ -143,7 +143,7 @@ pub struct TrainOutcome {
 }
 
 /// Classify features → spam percentage (0-100), None when the model is
-/// cold (`trained_samples < 50` — legacy warm-up guard).
+/// cold (`trained_samples < 50` - legacy warm-up guard).
 pub fn classify(model: &FtrlModel, features: &Features) -> Option<u8> {
     if model.trained_samples < 50 {
         return None;

@@ -103,7 +103,7 @@ fn calendar_part_extraction() {
 
 #[test]
 fn malformed_fallback() {
-    // No boundary terminator — final segment takes the rest.
+    // No boundary terminator - final segment takes the rest.
     let raw = b"From: a@b.c\r\nContent-Type: multipart/mixed; boundary=\"Z\"\r\n\r\n--Z\r\nContent-Type: text/plain\r\n\r\nunterminated body";
     let parts = walk_parts(raw);
     let one = parts

@@ -7,7 +7,7 @@
 //!
 //! Email8:Store is the only writer of the mail tables; Mta, Access and
 //! Apps call these typed endpoints over the service-to-service surface
-//! (M2M-authenticated). This is the *justified* sync surface — callers
+//! (M2M-authenticated). This is the *justified* sync surface - callers
 //! need the returned values in the same request (master design §4.8).
 
 use chrono::{DateTime, Utc};
@@ -41,14 +41,14 @@ pub enum ResolvedAddress {
         /// Effective delivery address after sub-addressing/alias rewrite.
         address: String,
     },
-    /// A mailing list/group — expand to members.
+    /// A mailing list/group - expand to members.
     Group {
         group_id: Uuid,
         members: Vec<String>,
     },
     /// The env's catch-all target.
     CatchAll { account_id: Uuid, address: String },
-    /// Not local — relay decision belongs to the caller (env relay policy).
+    /// Not local - relay decision belongs to the caller (env relay policy).
     External { address: String },
     /// Unknown local address.
     Invalid { address: String },
@@ -80,7 +80,7 @@ pub struct CreateMailboxRequest {
 
 // ── Email ingest (local delivery, APPEND, JMAP import) ───────────────────
 
-/// Raw message ingestion — the single entry point Mta local delivery,
+/// Raw message ingestion - the single entry point Mta local delivery,
 /// IMAP APPEND and JMAP Email/import all funnel through.
 #[derive(Debug, Clone, Serialize, Deserialize, utoipa::ToSchema)]
 pub struct IngestMessage {
@@ -96,12 +96,12 @@ pub struct IngestMessage {
     /// Mailbox ids to file into; defaults to INBOX.
     #[serde(default)]
     pub mailboxes: Vec<Uuid>,
-    /// Pre-computed spam percentage (0-100) — ≥50 re-files to JUNK.
+    /// Pre-computed spam percentage (0-100) - ≥50 re-files to JUNK.
     pub spam_percentage: Option<f32>,
     /// Skip spam re-file when the sender is a known-ham address.
     #[serde(default)]
     pub ham_override: bool,
-    /// Idempotency key — (blob_hash, mailbox set, envelope) dedup.
+    /// Idempotency key - (blob_hash, mailbox set, envelope) dedup.
     pub idempotency_key: Option<String>,
 }
 
@@ -149,7 +149,7 @@ pub struct ChangesSinceResponse {
 pub struct SubmitRequest {
     pub env_id: Uuid,
     pub account_id: Uuid,
-    /// Sentin8:Auth user `sub` — re-verified by Mta from claims.
+    /// Sentin8:Auth user `sub` - re-verified by Mta from claims.
     pub user_sub: Uuid,
     pub return_path: String,
     pub recipients: Vec<String>,
@@ -164,7 +164,7 @@ pub struct SubmitRequest {
 #[derive(Debug, Clone, Serialize, Deserialize, utoipa::ToSchema)]
 pub struct SubmitResponse {
     pub queue_id: Uuid,
-    /// Earliest due event (retry/notify/expiry) — informational.
+    /// Earliest due event (retry/notify/expiry) - informational.
     pub next_event_at: Option<DateTime<Utc>>,
 }
 

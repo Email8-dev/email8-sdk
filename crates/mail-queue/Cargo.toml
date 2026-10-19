@@ -10,7 +10,7 @@ edition.workspace = true
 license.workspace = true
 repository.workspace = true
 rust-version.workspace = true
-description = "Email8 queue math — retry/notify/expiry schedules, DSN (RFC 3464) builder, double-bounce policy."
+description = "Email8 queue math - retry/notify/expiry schedules, DSN (RFC 3464) builder, double-bounce policy."
 
 [dependencies]
 chrono.workspace = true

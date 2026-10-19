@@ -48,7 +48,7 @@ email8-vcard = { path = "crates/vcard" }
 
 # full platform dep table (mirrors sentin8-sdk) + intra-vertical
 # contracts path deps. Platform sentin8-* crates arrive via the
-# sentin8 facade git pin — never as local paths (RS §2.3).
+# sentin8 facade git pin - never as local paths (RS §2.3).
 axum = { version = "0.8", features = ["macros"] }
 hyper = { version = "1", features = ["full"] }
 tokio = { version = "1", features = ["full"] }
@@ -67,7 +67,7 @@ tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
 tracing-futures = "0.2"
 once_cell = "1"
 sqlx = { version = "0.8", features = ["runtime-tokio", "tls-rustls-ring", "postgres", "uuid", "chrono", "json", "macros"] }
-# Valkey GLIDE — the platform's sole Valkey client engine (platform group
+# Valkey GLIDE - the platform's sole Valkey client engine (platform group
 # DESIGN.md §3.1): glide-core owns TLS, reconnection, and backoff natively.
 valkey-glide = "0.9.0"
 time = "0.3.36"

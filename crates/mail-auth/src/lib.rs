@@ -3,7 +3,7 @@
 // SPDX-FileCopyrightText: Copyright Contributors to the Email8:SDK
 // SPDX-License-Identifier: Apache-2.0
 
-//! Email8 mail-auth — SPF, DKIM, DMARC, Authentication-Results.
+//! Email8 mail-auth - SPF, DKIM, DMARC, Authentication-Results.
 //!
 //! Ports the legacy verification semantics (mail-auth crate family)
 //! onto the platform: DNS is injected via the `DnsTxt` trait (the Mta
@@ -24,7 +24,7 @@ pub use dkim::{
 pub use dmarc::{dmarc_evaluate, dmarc_lookup, DmarcDisposition, DmarcPolicy, DmarcResult};
 pub use spf::{spf_check, spf_domain_owner, SpfParams, SpfResult};
 
-/// DNS TXT lookup interface (async) — implemented by the Mta with
+/// DNS TXT lookup interface (async) - implemented by the Mta with
 /// DNSSEC-validated hickory; tests use closures.
 #[async_trait::async_trait]
 pub trait DnsTxt: Send + Sync {

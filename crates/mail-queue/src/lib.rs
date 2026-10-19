@@ -3,7 +3,7 @@
 // SPDX-FileCopyrightText: Copyright Contributors to the Email8:SDK
 // SPDX-License-Identifier: Apache-2.0
 
-//! Email8 queue math — schedule resolution (retry/notify/expiry), DSN
+//! Email8 queue math - schedule resolution (retry/notify/expiry), DSN
 //! (RFC 3464) construction, and SMTP reply classification. Pure
 //! functions over the queue tables; persistence lives in the Mta
 //! service. Mirrors legacy `QueueStrategy`/`DSN` semantics.

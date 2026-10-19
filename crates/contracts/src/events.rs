@@ -5,14 +5,14 @@
 
 //! `email8:*` event payloads (Sentin8:Bus, inbox-first).
 //!
-//! Every payload is a **self-contained envelope** — the consumer must be
+//! Every payload is a **self-contained envelope** - the consumer must be
 //! able to run from the payload alone (event-driven execution rules,
 //! `AGENTS.md`). Names follow `{vertical}:{service}:{resource}:{operation}`.
 
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-/// `email8:smtp:message:received` — a message was accepted into the queue.
+/// `email8:smtp:message:received` - a message was accepted into the queue.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MessageReceivedEvent {
     pub env_id: Uuid,
@@ -26,7 +26,7 @@ pub struct MessageReceivedEvent {
     pub correlation_id: Option<String>,
 }
 
-/// `email8:smtp:recipient:{delivered,failed,deferred}` — per-recipient state.
+/// `email8:smtp:recipient:{delivered,failed,deferred}` - per-recipient state.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RecipientStatusEvent {
     pub env_id: Uuid,
@@ -38,7 +38,7 @@ pub struct RecipientStatusEvent {
     pub attempts: i32,
 }
 
-/// `email8:smtp:dsn:generated` — a bounce was emitted.
+/// `email8:smtp:dsn:generated` - a bounce was emitted.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DsnGeneratedEvent {
     pub env_id: Uuid,
@@ -48,7 +48,7 @@ pub struct DsnGeneratedEvent {
     pub for_recipient: Option<String>,
 }
 
-/// `email8:smtp:report:*` — an aggregate/failure report window is due.
+/// `email8:smtp:report:*` - an aggregate/failure report window is due.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ReportDueEvent {
     pub env_id: Uuid,
@@ -58,7 +58,7 @@ pub struct ReportDueEvent {
     pub window_end: chrono::DateTime<chrono::Utc>,
 }
 
-/// `email8:smtp:message:expired` — a queue message hit TTL/attempts and
+/// `email8:smtp:message:expired` - a queue message hit TTL/attempts and
 /// failed permanently (DLQ candidate; alerts Sentin8:Post).
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MessageExpiredEvent {
@@ -68,7 +68,7 @@ pub struct MessageExpiredEvent {
     pub last_error: Option<String>,
 }
 
-/// `email8:mail:email:ingested` — local delivery filed into mailbox(es).
+/// `email8:mail:email:ingested` - local delivery filed into mailbox(es).
 /// Drives IMAP IDLE, JMAP push fan-out, and thread-merge workers.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct EmailIngestedEvent {
@@ -83,7 +83,7 @@ pub struct EmailIngestedEvent {
     pub is_spam: bool,
 }
 
-/// `email8:mail:mailbox:{created,updated,deleted}` — mailbox tree changes.
+/// `email8:mail:mailbox:{created,updated,deleted}` - mailbox tree changes.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MailboxChangedEvent {
     pub env_id: Uuid,
@@ -92,7 +92,7 @@ pub struct MailboxChangedEvent {
     pub change_id: i64,
 }
 
-/// `email8:mail:thread:merge` — multiple candidate threads must be merged.
+/// `email8:mail:thread:merge` - multiple candidate threads must be merged.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ThreadMergeEvent {
     pub env_id: Uuid,
@@ -102,7 +102,7 @@ pub struct ThreadMergeEvent {
     pub email_id: Uuid,
 }
 
-/// `email8:push:state:changed` — the per-account change cursor advanced;
+/// `email8:push:state:changed` - the per-account change cursor advanced;
 /// push workers (SSE/WebPush/IDLE) flush to their subscribers.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct StateChangedEvent {
@@ -112,7 +112,7 @@ pub struct StateChangedEvent {
     pub change_ids: Vec<i64>,
 }
 
-/// `email8:groupware:*` — groupware object changes (iTIP outbound,
+/// `email8:groupware:*` - groupware object changes (iTIP outbound,
 /// change-log driven sync).
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct GroupwareChangedEvent {
@@ -124,7 +124,7 @@ pub struct GroupwareChangedEvent {
     pub operation: String,
 }
 
-/// `email8:dkim:key:rotated` — a DKIM key transitioned rotation stages.
+/// `email8:dkim:key:rotated` - a DKIM key transitioned rotation stages.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DkimRotatedEvent {
     pub env_id: Uuid,
@@ -133,7 +133,7 @@ pub struct DkimRotatedEvent {
     pub new_stage: String,
 }
 
-/// `email8:spam:sample:recorded` — a training sample landed; the training
+/// `email8:spam:sample:recorded` - a training sample landed; the training
 /// worker consumes it.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SpamSampleRecordedEvent {

@@ -3,7 +3,7 @@
 // SPDX-FileCopyrightText: Copyright Contributors to the Email8:SDK
 // SPDX-License-Identifier: Apache-2.0
 
-//! Sieve compiler — RFC 5228 grammar subset: require, if/elsif/else,
+//! Sieve compiler - RFC 5228 grammar subset: require, if/elsif/else,
 //! test lists (anyof/allof/not), header/address/exists/size/body/
 //! envelope/true/false tests, actions fileinto/redirect/reject/keep/
 //! stop/discard/vacation, string + numeric literals, tagged args
@@ -34,7 +34,7 @@ impl std::error::Error for Error0 {}
 
 pub type CompilerError = Error0;
 
-/// A compiled script — validated, zero unbound requirements.
+/// A compiled script - validated, zero unbound requirements.
 #[derive(Debug, Clone)]
 pub struct Script {
     pub requires: Vec<String>,
@@ -417,7 +417,7 @@ impl Parser {
                         // the previous branch's `els` list so
                         // if A … elsif B … else C desugars to
                         // If{A, then, [If{B, thenB, [C-block]}]} (RFC 5228
-                        // §3.1 — an elsif belongs to the enclosing if).
+                        // §3.1 - an elsif belongs to the enclosing if).
                         let els = match next_word.as_deref() {
                             Some("elsif") | Some("else") => self.parse_if_chain_tail()?,
                             _ => vec![],

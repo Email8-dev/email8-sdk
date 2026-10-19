@@ -10,7 +10,7 @@ edition.workspace = true
 license.workspace = true
 repository.workspace = true
 rust-version.workspace = true
-description = "Email8 iCalendar — parse/build (RFC 5545), recurrence expansion (RFC 5545 §3.3.10), synthetic ids, UID uniqueness."
+description = "Email8 iCalendar - parse/build (RFC 5545), recurrence expansion (RFC 5545 §3.3.10), synthetic ids, UID uniqueness."
 
 [dependencies]
 serde.workspace = true

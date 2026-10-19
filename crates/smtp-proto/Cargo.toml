@@ -10,7 +10,7 @@ edition.workspace = true
 license.workspace = true
 repository.workspace = true
 rust-version.workspace = true
-description = "SMTP/LMTP wire protocol parser (server role) — incremental command receiver, reply builder."
+description = "SMTP/LMTP wire protocol parser (server role) - incremental command receiver, reply builder."
 
 [dependencies]
 serde.workspace = true

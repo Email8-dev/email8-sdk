@@ -3,12 +3,12 @@
 // SPDX-FileCopyrightText: Copyright Contributors to the Email8:SDK
 // SPDX-License-Identifier: Apache-2.0
 
-//! PROXY protocol v2 — upstream-side header parsing (gate design §3.3,
+//! PROXY protocol v2 - upstream-side header parsing (gate design §3.3,
 //! story 7.4).
 //!
 //! The gate prepends a v2 header carrying the real client address.
 //! Upstream raw listeners parse (and consume) it when the
-//! `EMAIL8_{MTA,ACCESS}_ACCEPT_PROXY` env is set for the listener —
+//! `EMAIL8_{MTA,ACCESS}_ACCEPT_PROXY` env is set for the listener -
 //! keeping direct-bind dev traffic untouched.
 //!
 //! Byte layout (HAProxy spec §2.2): 12-byte signature, version|command
@@ -32,7 +32,7 @@ pub struct V2Addresses {
     pub destination: std::net::SocketAddr,
 }
 
-/// Parse error — a malformed header is unrecoverable (the stream is
+/// Parse error - a malformed header is unrecoverable (the stream is
 /// desynchronized); callers must close the connection.
 #[derive(Debug, thiserror::Error)]
 pub enum ProxyV2Error {

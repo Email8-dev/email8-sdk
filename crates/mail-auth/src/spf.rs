@@ -3,7 +3,7 @@
 // SPDX-FileCopyrightText: Copyright Contributors to the Email8:SDK
 // SPDX-License-Identifier: Apache-2.0
 
-//! SPF (RFC 7208) — `check_host()` evaluation with the macro expansion
+//! SPF (RFC 7208) - `check_host()` evaluation with the macro expansion
 //! subset legacy servers actually emit (s, l, o, d, i, v, h, plus %{}%
 //! escapes). Mechanisms: all, include, a, mx, ip4, ip6, exists;
 //! qualifiers pass/fail/softfail/neutral; modifiers redirect, exp.
@@ -23,7 +23,7 @@ pub struct SpfParams {
     pub sender: String,
 }
 
-/// The domain to evaluate — the sender's domain, else HELO (RFC 7208 §2.4).
+/// The domain to evaluate - the sender's domain, else HELO (RFC 7208 §2.4).
 pub fn spf_domain_owner(params: &SpfParams) -> String {
     let at = params.sender.rfind('@');
     match at {
@@ -183,7 +183,7 @@ async fn mech_match(
             }
         }
         "a" => {
-            // a[:domain][/cidr] — the domain's A (v4) or AAAA (v6) records.
+            // a[:domain][/cidr] - the domain's A (v4) or AAAA (v6) records.
             let target = arg
                 .map(|a| a.split('/').next().unwrap_or(a))
                 .unwrap_or(domain);
@@ -194,9 +194,9 @@ async fn mech_match(
             }
         }
         "mx" => {
-            // mx[:domain][/cidr] — resolve MX, then their A/AAAA. MX
+            // mx[:domain][/cidr] - resolve MX, then their A/AAAA. MX
             // lookups arrive as TXT rows shaped "10 mail.example.com"
-            // from the resolver impl; treat TXT as a stand-in — the
+            // from the resolver impl; treat TXT as a stand-in - the
             // production resolver translates MX queries to this shape.
             let target = arg
                 .map(|a| a.split('/').next().unwrap_or(a))

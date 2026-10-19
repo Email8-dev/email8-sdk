@@ -10,7 +10,7 @@ edition.workspace = true
 license.workspace = true
 repository.workspace = true
 rust-version.workspace = true
-description = "IMAP4rev1/rev2 wire protocol parser — incremental command receiver, response builders."
+description = "IMAP4rev1/rev2 wire protocol parser - incremental command receiver, response builders."
 
 [dependencies]
 uuid = { workspace = true }

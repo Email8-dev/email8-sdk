@@ -10,7 +10,7 @@ edition.workspace = true
 license.workspace = true
 repository.workspace = true
 rust-version.workspace = true
-description = "JMAP (RFC 8620/8621) wire protocol types — request parsing, references, response building."
+description = "JMAP (RFC 8620/8621) wire protocol types - request parsing, references, response building."
 
 [dependencies]
 serde.workspace = true

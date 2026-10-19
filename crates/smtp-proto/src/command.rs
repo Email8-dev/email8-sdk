@@ -164,7 +164,7 @@ fn parse_path_and_params(
     Some((address, params))
 }
 
-/// Parameter helpers — the session consumes these directly.
+/// Parameter helpers - the session consumes these directly.
 impl Command {
     pub fn param(&self, keyword: &str) -> Option<&Option<String>> {
         let params = match self {

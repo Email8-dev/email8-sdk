@@ -3,7 +3,7 @@
 // SPDX-FileCopyrightText: Copyright Contributors to the Email8:SDK
 // SPDX-License-Identifier: Apache-2.0
 
-//! Minimal XML toolkit for DAV bodies — parse into a node tree (name,
+//! Minimal XML toolkit for DAV bodies - parse into a node tree (name,
 //! attrs, children, text), then query with `child("ns:name")`; build
 //! with a small writer that tracks namespaces. CDATA and processing
 //! instructions are skipped; entity refs are decoded.
@@ -37,7 +37,7 @@ pub fn escape(s: &str) -> String {
 
 /// Parse a DAV XML body into its root node. Namespaced elements are
 /// reported with the prefix intact (`D:propfind`). Returns None for
-/// empty/whitespace bodies (allowed by RFC 4918 — empty PROPFIND means
+/// empty/whitespace bodies (allowed by RFC 4918 - empty PROPFIND means
 /// "allprop").
 pub fn parse(input: &[u8]) -> Option<XmlNode> {
     let text = String::from_utf8_lossy(input);
@@ -66,7 +66,7 @@ fn skip_prologue(s: &str, pos: &mut usize) {
             }
         }
         if rest.starts_with("<!") {
-            // DOCTYPE etc. — skip to '>'
+            // DOCTYPE etc. - skip to '>'
             if let Some(end) = rest.find('>') {
                 *pos += end + 1;
                 continue;
@@ -93,7 +93,7 @@ fn parse_element(s: &str, pos: &mut usize) -> Option<XmlNode> {
     let mut attrs = BTreeMap::new();
     if let Some(attr_text) = parts.next() {
         // Parse `k="v"` / `k='v'` pairs (quoted values may contain
-        // spaces — scan pairwise, not whitespace-split).
+        // spaces - scan pairwise, not whitespace-split).
         let bytes = attr_text.as_bytes();
         let mut i = 0usize;
         while i < bytes.len() {
@@ -128,7 +128,7 @@ fn parse_element(s: &str, pos: &mut usize) -> Option<XmlNode> {
                         v.to_string()
                     }
                     _ => {
-                        // Unquoted value — up to whitespace.
+                        // Unquoted value - up to whitespace.
                         let v_start = i;
                         while i < bytes.len() && !bytes[i].is_ascii_whitespace() {
                             i += 1;
@@ -138,7 +138,7 @@ fn parse_element(s: &str, pos: &mut usize) -> Option<XmlNode> {
                 };
                 attrs.insert(key.to_string(), value);
             } else if !key.is_empty() {
-                // Valueless attribute — record as empty.
+                // Valueless attribute - record as empty.
                 attrs.insert(key.to_string(), String::new());
             }
         }
@@ -164,7 +164,7 @@ fn parse_element(s: &str, pos: &mut usize) -> Option<XmlNode> {
                 attrs,
                 children,
                 text,
-            }); // unclosed — tolerate
+            }); // unclosed - tolerate
         }
         if rest.trim_start().starts_with(&close) {
             let end = rest.find('>')?;
@@ -241,14 +241,14 @@ fn decode_entities(s: &str) -> String {
 }
 
 impl XmlNode {
-    /// First child matching `name` — exact match, or local-name match
+    /// First child matching `name` - exact match, or local-name match
     /// when the query has no prefix (accepts any prefix like `D:`).
     pub fn child(&self, name: &str) -> Option<&XmlNode> {
         self.children.iter().find(|c| {
             if c.name == name {
                 return true;
             }
-            // Query "prop" matches "D:prop" — but query "D:prop" only
+            // Query "prop" matches "D:prop" - but query "D:prop" only
             // matches "D:prop" exactly.
             if !name.contains(':') {
                 return c.name.rsplit(':').next() == Some(name) && c.name.contains(':');
@@ -282,7 +282,7 @@ impl XmlNode {
     }
 }
 
-/// The XML builder — writes one root with children.
+/// The XML builder - writes one root with children.
 pub struct Xml {
     out: String,
     /// Declared namespaces on the root (prefix → URI).

@@ -3,7 +3,7 @@
 // SPDX-FileCopyrightText: Copyright Contributors to the Email8:SDK
 // SPDX-License-Identifier: Apache-2.0
 
-//! Queue wire types — the message record and recipient rows shared
+//! Queue wire types - the message record and recipient rows shared
 //! between the Mta queue manager and admin/RFW views (queue design §3).
 
 use chrono::{DateTime, Utc};
@@ -46,7 +46,7 @@ pub struct QueueRecipient {
     pub dsn_sent_at: Option<DateTime<Utc>>,
 }
 
-/// Queue due-event kinds — what wakes the manager loop
+/// Queue due-event kinds - what wakes the manager loop
 /// (`email8_queue_events.due_at` + `kind`).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]

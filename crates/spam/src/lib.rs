@@ -3,10 +3,10 @@
 // SPDX-FileCopyrightText: Copyright Contributors to the Email8:SDK
 // SPDX-License-Identifier: Apache-2.0
 
-//! Email8 spam engine — deterministic tag scoring (port of the legacy
+//! Email8 spam engine - deterministic tag scoring (port of the legacy
 //! chain), URL/phishing heuristics, and an FTRL classifier core
 //! (feature hashing + per-recipient personalization support).
-//! DNSBL/Pyzor network probes are injected by the caller (Mta) — the
+//! DNSBL/Pyzor network probes are injected by the caller (Mta) - the
 //! engine itself is pure so it can be tested and run in-process at
 //! ingest time.
 

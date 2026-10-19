@@ -3,7 +3,7 @@
 // SPDX-FileCopyrightText: Copyright Contributors to the Email8:SDK
 // SPDX-License-Identifier: Apache-2.0
 
-//! Sieve interpreter — executes a compiled script against a mail,
+//! Sieve interpreter - executes a compiled script against a mail,
 //! collecting actions. No I/O; vacation state and mailbox-name
 //! resolution belong to the caller.
 
@@ -14,7 +14,7 @@ use crate::compiler::{AddressPart, Comparator, EnvelopePart, Matcher, Script, St
 pub struct Mail {
     pub from: String,
     pub to: Vec<String>,
-    /// (lowercase-name, unfolded value) — from the RFC 5322 headers.
+    /// (lowercase-name, unfolded value) - from the RFC 5322 headers.
     pub headers: Vec<(String, String)>,
     pub body: Vec<u8>,
     pub size: u64,
@@ -253,7 +253,7 @@ fn value_matches(matcher: Matcher, comparator: Comparator, value: &str, key: &st
         Matcher::Contains => value
             .to_ascii_lowercase()
             .contains(&key.to_ascii_lowercase()),
-        // RFC 5228 §2.7.1 — `*` and `?` glob over the whole value.
+        // RFC 5228 §2.7.1 - `*` and `?` glob over the whole value.
         Matcher::Matches => glob_match(key, value),
     }
 }
@@ -478,7 +478,7 @@ if envelope :to :matches "*@example.net" { redirect "x@y.z"; }"#,
     fn glob_special_chars_escaped() {
         // A `.` in the pattern must not act as a regex wildcard.
         let s = script(r#"if header :matches "subject" "a.c" { discard; }"#);
-        // Value is "[list] Hello" — "a.c" must NOT match.
+        // Value is "[list] Hello" - "a.c" must NOT match.
         assert_eq!(run(&s, &mail()).unwrap(), vec![Action::Keep]);
     }
 

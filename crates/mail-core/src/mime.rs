@@ -3,7 +3,7 @@
 // SPDX-FileCopyrightText: Copyright Contributors to the Email8:SDK
 // SPDX-License-Identifier: Apache-2.0
 
-//! MIME tree walker (story 2.1) — splits a raw RFC 2045 message into its
+//! MIME tree walker (story 2.1) - splits a raw RFC 2045 message into its
 //! part tree without decoding transport encodings at walk time (offsets
 //! point at the raw bytes; `decode_part` handles base64/quoted-printable
 //! when text extraction needs it).
@@ -90,7 +90,7 @@ pub fn first_text_body(raw: &[u8], parts: &[MimePart]) -> Option<Vec<u8>> {
     parts.first().map(|p| decode_part(raw, p))
 }
 
-/// All `text/calendar` parts, transport-decoded — iMIP (story 4.6).
+/// All `text/calendar` parts, transport-decoded - iMIP (story 4.6).
 pub fn calendar_bodies(raw: &[u8], parts: &[MimePart]) -> Vec<Vec<u8>> {
     parts
         .iter()
@@ -156,7 +156,7 @@ fn find_blank_line(raw: &[u8]) -> Option<usize> {
 
 /// Parse one part: headers up to the blank line, then either recurse into
 /// multipart children (split on the boundary) or take the whole body.
-/// `base` is the absolute byte offset of `body[0]` within `raw` — all
+/// `base` is the absolute byte offset of `body[0]` within `raw` - all
 /// offsets stored on the part (and its children) are absolute.
 fn parse_part(headers: &[(String, String)], body: &[u8], base: usize) -> MimePart {
     let mut part = MimePart {
@@ -215,7 +215,7 @@ fn parse_part(headers: &[(String, String)], body: &[u8], base: usize) -> MimePar
                 base + seg_start + part_sep,
             ));
         }
-        // Container body itself is not payload — mark empty.
+        // Container body itself is not payload - mark empty.
         part.body_len = 0;
     }
     part
@@ -266,7 +266,7 @@ fn split_boundary(body: &[u8], boundary: &str) -> Vec<(usize, usize)> {
         line_start = line_end + 1;
     }
     if let Some(start) = current_start {
-        // Unterminated final part — take the rest.
+        // Unterminated final part - take the rest.
         segments.push((start, body.len()));
     }
     segments
@@ -337,7 +337,7 @@ mod tests {
     fn first_text_body_decodes_plain_part() {
         let raw = multipart_raw();
         let parts = walk_parts(&raw);
-        // Body window runs to the next boundary line — trailing CRLF kept.
+        // Body window runs to the next boundary line - trailing CRLF kept.
         assert_eq!(first_text_body(&raw, &parts).unwrap(), b"hello body\r\n");
     }
 

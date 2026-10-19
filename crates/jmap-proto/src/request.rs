@@ -3,7 +3,7 @@
 // SPDX-FileCopyrightText: Copyright Contributors to the Email8:SDK
 // SPDX-License-Identifier: Apache-2.0
 
-//! JMAP request parsing — the `POST /jmap` envelope, method calls, and
+//! JMAP request parsing - the `POST /jmap` envelope, method calls, and
 //! result-reference resolution (RFC 8620 §3).
 
 use serde::{Deserialize, Serialize};
@@ -108,7 +108,7 @@ impl RequestError {
     }
 }
 
-/// A `ResultReference` (RFC 8620 §3.7) — `#`-prefixed pointer to an
+/// A `ResultReference` (RFC 8620 §3.7) - `#`-prefixed pointer to an
 /// earlier call's response.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ResultReference {

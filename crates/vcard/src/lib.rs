@@ -3,7 +3,7 @@
 // SPDX-FileCopyrightText: Copyright Contributors to the Email8:SDK
 // SPDX-License-Identifier: Apache-2.0
 
-//! Email8 vCard — RFC 6350 parse/build (the subset the groupware
+//! Email8 vCard - RFC 6350 parse/build (the subset the groupware
 //! objects need): FN, N, EMAIL (with TYPE params), ORG, TEL, NOTE,
 //! ADR, plus unfolded-line handling shared with the iCalendar parser
 //! shape. Contact cards round-trip through the Store's
@@ -31,7 +31,7 @@ impl Vcard {
         let mut card = Self::default();
         let mut in_card = false;
         for raw_line in raw.lines() {
-            // Only the trailing CR is stripped — leading WSP marks a
+            // Only the trailing CR is stripped - leading WSP marks a
             // folded continuation and must survive this trim.
             let line = raw_line.trim_end_matches('\r');
             if !in_card {
@@ -122,7 +122,7 @@ impl Vcard {
 }
 
 fn parse_property(line: &str) -> Option<VcardProperty> {
-    // Find the first unquoted ':' — group separator.
+    // Find the first unquoted ':' - group separator.
     let mut in_quotes = false;
     let mut colon_pos = None;
     for (i, ch) in line.char_indices() {

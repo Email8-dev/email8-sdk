@@ -3,7 +3,7 @@
 // SPDX-FileCopyrightText: Copyright Contributors to the Email8:SDK
 // SPDX-License-Identifier: Apache-2.0
 
-//! Authentication-Results (RFC 8601) builder — the `auth` header Mta
+//! Authentication-Results (RFC 8601) builder - the `auth` header Mta
 //! prepends after the inbound pipeline, plus the Received-SPF header.
 
 use crate::dkim::{DkimStatus, SingleDkim};
@@ -62,7 +62,7 @@ pub fn build_results(
     dmarc: &DmarcResult,
 ) -> AuthenticationResults {
     let mut ar = AuthenticationResults::new();
-    // SPF — `spf=token smtp.mail=<domain>`.
+    // SPF - `spf=token smtp.mail=<domain>`.
     ar = ar.push(AuthResult {
         method: "spf",
         value: spf.token(),
@@ -74,7 +74,7 @@ pub fn build_results(
         },
         property: Some(("smtp.mail".into(), spf_domain.to_string())),
     });
-    // DKIM — one entry per signature.
+    // DKIM - one entry per signature.
     for s in dkim {
         ar = ar.push(AuthResult {
             method: "dkim",
@@ -88,7 +88,7 @@ pub fn build_results(
             property: Some(("header.d".into(), s.domain.clone())),
         });
     }
-    // DMARC — `dmarc=pass (p=none dis=none) header.from=<domain>`.
+    // DMARC - `dmarc=pass (p=none dis=none) header.from=<domain>`.
     let mut reason = String::new();
     if let Some(p) = &dmarc.policy {
         reason = format!(
@@ -122,7 +122,7 @@ pub fn build_results(
     ar
 }
 
-/// The Received-SPF header (legacy parity — always emitted).
+/// The Received-SPF header (legacy parity - always emitted).
 pub fn received_spf(spf: &SpfResult, params_comment: &str) -> String {
     let value = match spf {
         SpfResult::None => "none",

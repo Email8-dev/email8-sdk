@@ -3,7 +3,7 @@
 // SPDX-FileCopyrightText: Copyright Contributors to the Email8:SDK
 // SPDX-License-Identifier: Apache-2.0
 
-//! IMAP4rev1/rev2 wire protocol library — server role.
+//! IMAP4rev1/rev2 wire protocol library - server role.
 //!
 //! Incremental receiver (LITERAL+ aware), typed `Command` model with the
 //! core op set (FETCH/STORE/LIST/SELECT/SEARCH parsing) and response

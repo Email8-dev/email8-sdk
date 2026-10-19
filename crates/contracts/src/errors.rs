@@ -3,7 +3,7 @@
 // SPDX-FileCopyrightText: Copyright Contributors to the Email8:SDK
 // SPDX-License-Identifier: Apache-2.0
 
-//! Email8 error model — vertical error codes registered at enrollment and
+//! Email8 error model - vertical error codes registered at enrollment and
 //! raised by the services. Platform errors come from `sentin8-errors`;
 //! these are mail-domain codes only (zero compile-time vertical knowledge
 //! in the platform, architecture-principles.md §4.14).
@@ -62,7 +62,7 @@ impl Email8ErrorCode {
     }
 
     /// HTTP status for API surfaces (protocol surfaces map their own
-    /// codes — e.g. SMTP `550 5.1.1`).
+    /// codes - e.g. SMTP `550 5.1.1`).
     pub fn status(self) -> u16 {
         match self {
             Self::MailboxNotFound

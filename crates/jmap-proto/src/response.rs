@@ -3,7 +3,7 @@
 // SPDX-FileCopyrightText: Copyright Contributors to the Email8:SDK
 // SPDX-License-Identifier: Apache-2.0
 
-//! JMAP response construction — `JmapResponse` builder, per-call error
+//! JMAP response construction - `JmapResponse` builder, per-call error
 //! envelopes, and the RFC 8620 problem-details top-level error.
 
 use serde_json::{json, Map, Value};
@@ -13,7 +13,7 @@ use serde_json::{json, Map, Value};
 pub struct JmapResponse {
     pub method_responses: Vec<(String, Value, String)>,
     pub created_ids: Map<String, Value>,
-    /// Top-level error (RFC 8620 §3.6.1) — when set, `methodResponses` is
+    /// Top-level error (RFC 8620 §3.6.1) - when set, `methodResponses` is
     /// replaced by `problemDetails`.
     pub problem: Option<Value>,
 }
@@ -139,7 +139,7 @@ pub fn upload_result(account_id: &str, blob_id: &str, kind: &str, size: i64) -> 
     })
 }
 
-/// Core/echo — mirrors the arguments back.
+/// Core/echo - mirrors the arguments back.
 pub fn echo(args: serde_json::Value) -> Value {
     args
 }

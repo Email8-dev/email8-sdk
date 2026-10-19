@@ -3,7 +3,7 @@
 // SPDX-FileCopyrightText: Copyright Contributors to the Email8:SDK
 // SPDX-License-Identifier: Apache-2.0
 
-//! RFC 5322/MIME parsing — header extraction, envelope, body structure,
+//! RFC 5322/MIME parsing - header extraction, envelope, body structure,
 //! preview text. Deliberately a pragmatic parser: it extracts the fields
 //! the data model needs (message-id, references, from/to/cc/bcc, subject,
 //! date, attachments list, preview) without a full MIME tree.
@@ -17,7 +17,7 @@ pub enum ParseError {
     MissingHeaderTerminator,
 }
 
-/// A parsed message — the fields Email8:Store persists.
+/// A parsed message - the fields Email8:Store persists.
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
 pub struct ParsedMessage {
     /// Byte offset where the body starts (after the blank line).
@@ -103,7 +103,7 @@ impl ParsedMessage {
             || memchr_contains(raw, b"content-disposition: attachment")
     }
 
-    /// Preview text — the first ~120 printable body characters from the
+    /// Preview text - the first ~120 printable body characters from the
     /// first text/plain part, or the first text/html stripped of tags.
     pub fn preview(&self, raw: &[u8], max_chars: usize) -> String {
         let body = &raw[self.body_offset.min(raw.len())..];
@@ -129,7 +129,7 @@ fn find_header_end(raw: &[u8]) -> Option<usize> {
     if let Some(pos) = memchr::memmem::find(raw, b"\n\n") {
         return Some(pos + 1);
     }
-    // Headers-only message (no body) — everything after is absent.
+    // Headers-only message (no body) - everything after is absent.
     if raw.len() < 1024 * 1024 {
         return Some(raw.len());
     }

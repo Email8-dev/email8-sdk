@@ -10,10 +10,10 @@ edition.workspace = true
 license.workspace = true
 repository.workspace = true
 rust-version.workspace = true
-description = "Email8:Gate-scoped contracts — Valkey listener-registry publisher + PROXY v2 parsing (imported as email8::gate::contracts; principles §2.1)."
+description = "Email8:Gate-scoped contracts - Valkey listener-registry publisher + PROXY v2 parsing (imported as email8::gate::contracts; principles §2.1)."
 
 [dependencies]
-# I/O + wire parsing by charter — this crate exists BECAUSE the shared
+# I/O + wire parsing by charter - this crate exists BECAUSE the shared
 # vocabulary leaf (`email8::contracts`) must stay pure serde (master
 # design §4.2.1 decision 2026-09-08). Valkey rides the platform's
 # cert-identity GLIDE factory (platform group DESIGN.md §3.1).

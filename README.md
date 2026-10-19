@@ -1,8 +1,8 @@
-# email8-sdk — Email8 Vertical SDK
+# email8-sdk - Email8 Vertical SDK
 
 ## 1. Summary
 
-The Email8 vertical's **shared plane** — the vertical's own
+The Email8 vertical's **shared plane** - the vertical's own
 `sentin8-sdk` equivalent (SDD §3.4): the mail protocol stack
 (IMAP/SMTP/JMAP/DAV/Sieve), core mail data model, authentication,
 queue, and spam-scoring crates that EVERY email8 service (gate, mta,
@@ -13,7 +13,7 @@ would recreate cross-service repo cycles one level down.
 
 | Crate | Purpose |
 |---|---|
-| `facade` (package `email8`) | Namespace facade — `use email8::imap_proto::…` |
+| `facade` (package `email8`) | Namespace facade - `use email8::imap_proto::…` |
 | `crates/mail-core` | Core mail data model (MIME, envelope, mailbox) |
 | `crates/mail-auth` | SPF/DKIM/DMARC authentication |
 | `crates/mail-queue` | Queue abstractions shared by gate/mta |
@@ -33,7 +33,7 @@ would recreate cross-service repo cycles one level down.
 email8 = { git = "https://github.com/Email8-dev/email8-sdk", tag = "email8-v0.1.0" }
 ```
 
-The facade pins the platform SDK (`sentin8` — shared plane only,
+The facade pins the platform SDK (`sentin8` - shared plane only,
 SDD §2.2).
 
 ---

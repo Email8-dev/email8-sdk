@@ -3,7 +3,7 @@
 // SPDX-FileCopyrightText: Copyright Contributors to the Email8:SDK
 // SPDX-License-Identifier: Apache-2.0
 
-//! URL/phishing heuristics — zero-width characters, homograph/mixed
+//! URL/phishing heuristics - zero-width characters, homograph/mixed
 //! script (confusable) detection, IP-literal hosts, redirector
 //! unrolling (single hop), and bracketed/obfuscated URL reconstruction.
 //! Pure byte-level analysis of the body text.
@@ -71,7 +71,7 @@ pub fn scan_urls(text: &str) -> UrlFindings {
         let lower = label.to_ascii_lowercase();
         if lower.starts_with("xn--") {
             // Without a full punycode table, flag any xn-- label that
-            // decodes (length heuristics) into a short confusable —
+            // decodes (length heuristics) into a short confusable -
             // here: flag every punycode label in a URL context as a
             // homograph candidate (conservative, matches legacy behavior
             // of warning + scoring rather than decoding in-process).

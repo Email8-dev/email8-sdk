@@ -3,7 +3,7 @@
 // SPDX-FileCopyrightText: Copyright Contributors to the Email8:SDK
 // SPDX-License-Identifier: Apache-2.0
 
-//! DSN (RFC 3464) builder — multipart/report with `delivery-status`
+//! DSN (RFC 3464) builder - multipart/report with `delivery-status`
 //! and per-recipient status blocks; ≤4 KB original headers (RFC 3464
 //! §3.1.6 boundary); NOTIFY/ORCPT honored; double-bounce (empty
 //! return-path) is the caller's check.
@@ -24,7 +24,7 @@ pub struct DsnRecipient {
     pub address: String,
     /// 3-digit action: delivered / delayed / failed.
     pub action: &'static str,
-    /// e.g. `5.1.1` — None means no diagnostic was available.
+    /// e.g. `5.1.1` - None means no diagnostic was available.
     pub status: Option<String>,
     /// The remote reply line for context.
     pub diagnostic: Option<String>,
@@ -32,11 +32,11 @@ pub struct DsnRecipient {
 
 /// Build the complete DSN message (headers + body) ready for enqueue.
 ///
-/// * `return_path` — where the DSN is sent (envelope MAIL FROM).
-/// * `original_sender` / `original_recipients` — for the human text part.
-/// * `original_headers` — the top N headers of the original message.
-/// * `mta_host` — our FQDN for the Reporting-MTA and Received line.
-/// * `original_envelope_id` — ENVID, echoed back.
+/// * `return_path` - where the DSN is sent (envelope MAIL FROM).
+/// * `original_sender` / `original_recipients` - for the human text part.
+/// * `original_headers` - the top N headers of the original message.
+/// * `mta_host` - our FQDN for the Reporting-MTA and Received line.
+/// * `original_envelope_id` - ENVID, echoed back.
 pub fn build_dsn(
     dsn_type: DsnType,
     return_path: &str,
@@ -160,7 +160,7 @@ fn uuid_b64() -> String {
     base64::engine::general_purpose::URL_SAFE_NO_PAD.encode(id.as_bytes())
 }
 
-// uuid is not a workspace dep for this crate — reuse the chrono entropy
+// uuid is not a workspace dep for this crate - reuse the chrono entropy
 // path instead of pulling uuid in. (Renames above are cosmetic; the
 // function is self-contained.)
 mod uuid {
