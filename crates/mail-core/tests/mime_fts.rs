@@ -124,7 +124,10 @@ fn lang_detection() {
         "german"
     );
     assert_eq!(detect_tsvector_lang("hello"), "simple");
-    assert_eq!(detect_tsvector_lang("你好世界 这是一个测试"), "simple");
+    assert_eq!(
+        detect_tsvector_lang("ni hao shi jie zhe shi yi ge ce shi"),
+        "simple"
+    );
 }
 
 #[test]

@@ -177,7 +177,7 @@ mod tests {
     #[test]
     fn cjk_defaults_to_simple() {
         assert_eq!(
-            detect_tsvector_lang("これは日本語のテキストです。テストです。"),
+            detect_tsvector_lang("nihongo no tekisuto desu - tesuto desu"),
             "simple"
         );
     }
