@@ -18,6 +18,13 @@ pub struct Receiver {
     buffer: Vec<u8>,
     /// Pending literal: (size, synchronizing) - bytes to consume verbatim.
     pending_literal: Option<(usize, bool)>,
+    /// The command line that carried the pending `{n}` marker (E2E-APPEND-1:
+    /// the IMAP grammar ends a command AT its trailing literal - after the
+    /// literal's terminating CRLF the command must be RECONSTRUCTED from
+    /// the stashed pre-literal line, not parsed as a fresh empty line - the
+    /// former flow surfaced `* BAD Invalid command` on every APPEND and the
+    /// op never ran).
+    pending_line: Option<String>,
 }
 
 /// A completed element from the byte stream.
@@ -47,6 +54,7 @@ impl Receiver {
         Self {
             buffer: Vec::with_capacity(1024),
             pending_literal: None,
+            pending_line: None,
         }
     }
 
@@ -63,7 +71,25 @@ impl Receiver {
                 let _ = sync;
                 self.pending_literal = None;
                 out.push(Element::Literal { data: literal });
-                // Fall through: try to complete the rest of the line.
+                // The command that carried `{n}` completes HERE: drain the
+                // literal's terminating CRLF (the grammar: the newline
+                // after the literal bytes ends the command - it is not a
+                // new command line), reconstruct from the stashed
+                // pre-literal line, and emit the Command (E2E-APPEND-1).
+                let mut rest: Vec<u8> = Vec::new();
+                if self.buffer.first() == Some(&b'\n') {
+                    rest = self.buffer.drain(..1).collect();
+                } else if self.buffer.starts_with(b"\r\n") {
+                    rest = self.buffer.drain(..2).collect();
+                }
+                let _ = rest;
+                if let Some(line) = self.pending_line.take() {
+                    match command::parse(&line) {
+                        Some(cmd) => out.push(Element::Command(cmd)),
+                        None => out.push(Element::Invalid(line)),
+                    }
+                }
+                continue;
             }
             match self.buffer.iter().position(|&b| b == b'\n') {
                 Some(pos) => {
@@ -79,6 +105,11 @@ impl Receiver {
                         } else {
                             self.pending_literal = Some((size, false));
                         }
+                        // Stash the pre-literal line (with the `{n}` marker
+                        // stripped): the command completes once the literal
+                        // and its terminating CRLF arrive.
+                        let start = line_str.rfind('{').unwrap_or(line_str.len());
+                        self.pending_line = Some(line_str[..start].to_string());
                         continue;
                     }
                     match command::parse(&line_str) {
